@@ -1,0 +1,47 @@
+[
+  {
+    "name": "ok",
+    "value": true,
+    "type": "boolean"
+  },
+  {
+    "name": "operation",
+    "value": "={{ $node['Build Upsert Request'].json.operation }}",
+    "type": "string"
+  },
+  {
+    "name": "workflowName",
+    "value": "={{ $node['Build Upsert Request'].json.workflowName }}",
+    "type": "string"
+  },
+  {
+    "name": "workflowId",
+    "value": "={{ $json.id || $json.data?.id || $node['Build Upsert Request'].json.existingWorkflowId || '' }}",
+    "type": "string"
+  },
+  {
+    "name": "workflowPath",
+    "value": "={{ $node['Build Upsert Request'].json.workflowPath }}",
+    "type": "string"
+  },
+  {
+    "name": "repository",
+    "value": "={{ $node['Build Upsert Request'].json.repository }}",
+    "type": "string"
+  },
+  {
+    "name": "branch",
+    "value": "={{ $node['Build Upsert Request'].json.branch }}",
+    "type": "string"
+  },
+  {
+    "name": "commitSha",
+    "value": "={{ $node['Build Upsert Request'].json.commitSha }}",
+    "type": "string"
+  },
+  {
+    "name": "rawUrl",
+    "value": "={{ $node['Build Upsert Request'].json.rawUrl }}",
+    "type": "string"
+  }
+]

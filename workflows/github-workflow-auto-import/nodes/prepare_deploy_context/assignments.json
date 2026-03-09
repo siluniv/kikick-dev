@@ -1,0 +1,52 @@
+[
+  {
+    "name": "receivedSecret",
+    "value": "={{ $json.headers['x-deploy-secret'] || '' }}",
+    "type": "string"
+  },
+  {
+    "name": "expectedSecret",
+    "value": "={{ $env.N8N_DEPLOY_WEBHOOK_SECRET || '' }}",
+    "type": "string"
+  },
+  {
+    "name": "n8nBaseUrl",
+    "value": "={{ ($env.N8N_API_BASE_URL || '').replace(/\\/$/, '') }}",
+    "type": "string"
+  },
+  {
+    "name": "n8nApiKey",
+    "value": "={{ $env.N8N_API_KEY || '' }}",
+    "type": "string"
+  },
+  {
+    "name": "workflowName",
+    "value": "={{ $json.body.workflowName || '' }}",
+    "type": "string"
+  },
+  {
+    "name": "workflowPath",
+    "value": "={{ $json.body.workflowPath || '' }}",
+    "type": "string"
+  },
+  {
+    "name": "rawUrl",
+    "value": "={{ $json.body.rawUrl || '' }}",
+    "type": "string"
+  },
+  {
+    "name": "repository",
+    "value": "={{ $json.body.repository || '' }}",
+    "type": "string"
+  },
+  {
+    "name": "branch",
+    "value": "={{ $json.body.branch || '' }}",
+    "type": "string"
+  },
+  {
+    "name": "commitSha",
+    "value": "={{ $json.body.commitSha || '' }}",
+    "type": "string"
+  }
+]
