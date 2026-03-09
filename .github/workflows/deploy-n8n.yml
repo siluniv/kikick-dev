@@ -77,6 +77,11 @@ jobs:
           while IFS= read -r workflow_file; do
             [[ -z "$workflow_file" ]] && continue
 
+            if [[ "$workflow_file" == "workflows/github-workflow-auto-import/workflow.json" ]]; then
+              echo "Skipping self-managed deploy workflow: $workflow_file"
+              continue
+            fi
+
             workflow_name="$(basename "$(dirname "$workflow_file")")"
             raw_url="https://raw.githubusercontent.com/${REPOSITORY}/${BRANCH}/${workflow_file}"
 
