@@ -192,7 +192,7 @@
       "parameters": {
         "mode": "runOnceForAllItems",
         "language": "javaScript",
-        "jsCode": "const item = $input.first().json;\n\nconst sceneSegments = Array.isArray(item.scene_segments) ? item.scene_segments : [];\nconst entityCandidates = item.entity_candidates ?? {\n  characters: [],\n  locations: [],\n  props: [],\n  relationships: [],\n};\nconst biblePatchCandidates = Array.isArray(item.bible_patch_candidates) ? item.bible_patch_candidates : [];\nconst productionHints = item.production_hints ?? {\n  dominant_mood: '',\n  visual_keywords: [],\n  core_conflict: '',\n  estimated_complexity: 'unknown',\n};\n\nconst uniqueStrings = (values) => [...new Set(\n  values\n    .filter((value) => typeof value === 'string')\n    .map((value) => value.trim())\n    .filter(Boolean),\n)];\n\nconst detectedCharacters = uniqueStrings([\n  ...sceneSegments.flatMap((scene) => Array.isArray(scene.characters) ? scene.characters : []),\n  ...((entityCandidates.characters ?? []).map((character) => character.name)),\n]);\n\nconst detectedLocations = uniqueStrings([\n  ...sceneSegments.flatMap((scene) => Array.isArray(scene.locations) ? scene.locations : []),\n  ...((entityCandidates.locations ?? []).map((location) => location.name)),\n]);\n\nreturn [{\n  json: {\n    ...item,\n    normalizationStatus: 'candidate_ready',\n    normalizedInput: {\n      story_text_structured: {\n        summary: item.story_summary ?? '',\n        segments: sceneSegments.map((scene, index) => ({\n          scene_index: index + 1,\n          scene_id: scene.scene_id ?? `scene_${String(index + 1).padStart(2, '0')}`,\n          scene_heading: scene.scene_heading ?? '',\n          summary: scene.summary ?? '',\n          intent: scene.intent ?? '',\n          emotion_tone: Array.isArray(scene.emotion_tone) ? scene.emotion_tone : [],\n          key_actions: Array.isArray(scene.key_actions) ? scene.key_actions : [],\n          entities: {\n            characters: Array.isArray(scene.characters) ? scene.characters : [],\n            locations: Array.isArray(scene.locations) ? scene.locations : [],\n            props: Array.isArray(scene.props) ? scene.props : [],\n          },\n          relationship_signals: Array.isArray(scene.relationship_signals) ? scene.relationship_signals : [],\n          continuity_risks: Array.isArray(scene.continuity_risks) ? scene.continuity_risks : [],\n        })),\n      },\n      resolved_references: {\n        characters: [],\n        locations: [],\n        props: [],\n      },\n      attachment_analysis: [],\n      entity_candidates: entityCandidates,\n      bible_patch_candidates: biblePatchCandidates,\n      production_hints: productionHints,\n      input_metadata: {\n        source_type: 'text_story_form',\n        language: item.detectedLanguage ?? 'ko',\n        scene_count: sceneSegments.length,\n        detected_character_count: detectedCharacters.length,\n        detected_location_count: detectedLocations.length,\n        bible_patch_candidate_count: biblePatchCandidates.length,\n        attachment_count: 0,\n        estimated_complexity: productionHints.estimated_complexity ?? 'unknown',\n      },\n    },\n  },\n}];"
+        "jsCode": "const item = $input.first().json;\nconst parsed = item.output && typeof item.output === 'object' ? item.output : item;\n\nconst sceneSegments = Array.isArray(parsed.scene_segments) ? parsed.scene_segments : [];\nconst entityCandidates = parsed.entity_candidates ?? {\n  characters: [],\n  locations: [],\n  props: [],\n  relationships: [],\n};\nconst biblePatchCandidates = Array.isArray(parsed.bible_patch_candidates) ? parsed.bible_patch_candidates : [];\nconst productionHints = parsed.production_hints ?? {\n  dominant_mood: '',\n  visual_keywords: [],\n  core_conflict: '',\n  estimated_complexity: 'unknown',\n};\n\nconst uniqueStrings = (values) => [...new Set(\n  values\n    .filter((value) => typeof value === 'string')\n    .map((value) => value.trim())\n    .filter(Boolean),\n)];\n\nconst detectedCharacters = uniqueStrings([\n  ...sceneSegments.flatMap((scene) => Array.isArray(scene.characters) ? scene.characters : []),\n  ...((entityCandidates.characters ?? []).map((character) => character.name)),\n]);\n\nconst detectedLocations = uniqueStrings([\n  ...sceneSegments.flatMap((scene) => Array.isArray(scene.locations) ? scene.locations : []),\n  ...((entityCandidates.locations ?? []).map((location) => location.name)),\n]);\n\nreturn [{\n  json: {\n    ...item,\n    normalizationStatus: 'candidate_ready',\n    normalizedInput: {\n      story_text_structured: {\n        summary: parsed.story_summary ?? '',\n        segments: sceneSegments.map((scene, index) => ({\n          scene_index: index + 1,\n          scene_id: scene.scene_id ?? `scene_${String(index + 1).padStart(2, '0')}`,\n          scene_heading: scene.scene_heading ?? '',\n          summary: scene.summary ?? '',\n          intent: scene.intent ?? '',\n          emotion_tone: Array.isArray(scene.emotion_tone) ? scene.emotion_tone : [],\n          key_actions: Array.isArray(scene.key_actions) ? scene.key_actions : [],\n          entities: {\n            characters: Array.isArray(scene.characters) ? scene.characters : [],\n            locations: Array.isArray(scene.locations) ? scene.locations : [],\n            props: Array.isArray(scene.props) ? scene.props : [],\n          },\n          relationship_signals: Array.isArray(scene.relationship_signals) ? scene.relationship_signals : [],\n          continuity_risks: Array.isArray(scene.continuity_risks) ? scene.continuity_risks : [],\n        })),\n      },\n      resolved_references: {\n        characters: [],\n        locations: [],\n        props: [],\n      },\n      attachment_analysis: [],\n      entity_candidates: entityCandidates,\n      bible_patch_candidates: biblePatchCandidates,\n      production_hints: productionHints,\n      input_metadata: {\n        source_type: item.sourceType ?? 'text_story_form',\n        language: item.detectedLanguage ?? 'ko',\n        scene_count: sceneSegments.length,\n        detected_character_count: detectedCharacters.length,\n        detected_location_count: detectedLocations.length,\n        bible_patch_candidate_count: biblePatchCandidates.length,\n        attachment_count: 0,\n        estimated_complexity: productionHints.estimated_complexity ?? 'unknown',\n      },\n    },\n  },\n}];"
       },
       "id": "31a9c0bb-81e2-4b05-86c0-f348e0b7b510",
       "name": "Assemble Normalized Input",
@@ -200,6 +200,102 @@
       "typeVersion": 2,
       "position": [
         1580,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const item = $input.first().json;\nconst normalizedInput = item.normalizedInput ?? {};\nconst story = normalizedInput.story_text_structured ?? {};\nconst segments = Array.isArray(story.segments) ? story.segments : [];\n\nconst episodeContextAnalysisInput = {\n  story_text_structured: {\n    summary: story.summary ?? '',\n    segments: segments.map((segment) => ({\n      scene_id: segment.scene_id ?? '',\n      scene_heading: segment.scene_heading ?? '',\n      summary: segment.summary ?? '',\n      intent: segment.intent ?? '',\n      emotion_tone: Array.isArray(segment.emotion_tone) ? segment.emotion_tone : [],\n      key_actions: Array.isArray(segment.key_actions) ? segment.key_actions : [],\n      relationship_signals: Array.isArray(segment.relationship_signals) ? segment.relationship_signals : [],\n      continuity_risks: Array.isArray(segment.continuity_risks) ? segment.continuity_risks : [],\n      entities: {\n        characters: Array.isArray(segment.entities?.characters) ? segment.entities.characters : [],\n        locations: Array.isArray(segment.entities?.locations) ? segment.entities.locations : [],\n        props: Array.isArray(segment.entities?.props) ? segment.entities.props : [],\n      },\n    })),\n  },\n  entity_candidates: normalizedInput.entity_candidates ?? {\n    characters: [],\n    locations: [],\n    props: [],\n    relationships: [],\n  },\n  bible_patch_candidates: Array.isArray(normalizedInput.bible_patch_candidates)\n    ? normalizedInput.bible_patch_candidates\n    : [],\n  production_hints: normalizedInput.production_hints ?? {\n    dominant_mood: '',\n    visual_keywords: [],\n    core_conflict: '',\n    estimated_complexity: 'unknown',\n  },\n  input_metadata: normalizedInput.input_metadata ?? {\n    source_type: item.sourceType ?? 'text_story_form',\n    language: item.detectedLanguage ?? 'ko',\n    scene_count: segments.length,\n    detected_character_count: 0,\n    detected_location_count: 0,\n    bible_patch_candidate_count: 0,\n    attachment_count: 0,\n    estimated_complexity: 'unknown',\n  },\n};\n\nreturn [{\n  json: {\n    ...item,\n    contextScope: 'current_episode_only',\n    scoringMode: 'heuristic_plus_llm',\n    episodeContextAnalysisInput,\n  },\n}];"
+      },
+      "id": "1f3c57ec-b84d-458d-8955-6b6bee9187ee",
+      "name": "Build Episode Context Payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1840,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ `You are the Episode Context Analysis step of an AI short-drama generation pipeline.\nYour job is to convert normalized episode input into a compact episode-level context package for downstream planning.\n\nImportant rules:\n- Work only from the provided normalized input. Do not invent external canon or prior-episode facts.\n- Treat unresolved continuity concerns as watchouts, not hard contradictions, unless the current episode text clearly conflicts with itself.\n- Keep natural-language values in Korean.\n- Keep enum-like values in snake_case.\n- Use concise phrases, not long paragraphs, except for \\`episode_summary\\`.\n- Make scene functions reflect dramatic role inside this single episode.\n- Relationship progressions must stay grounded in explicit scene evidence.\n- Return only the data requested by the output schema. No markdown. No extra commentary.\n\nWorkflow context:\n- workflow_name: ${$json.workflowName || 'short-drama-pipeline'}\n- context_scope: ${$json.contextScope || 'current_episode_only'}\n- scoring_mode: ${$json.scoringMode || 'heuristic_plus_llm'}\n- scene_count: ${$json.episodeContextAnalysisInput?.input_metadata?.scene_count || 0}\n- estimated_complexity: ${$json.episodeContextAnalysisInput?.input_metadata?.estimated_complexity || 'unknown'}\n\nNormalized input JSON:\n${JSON.stringify($json.episodeContextAnalysisInput, null, 2)}` }}",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "type": "SystemMessagePromptTemplate",
+              "message": "You are a Korean drama episode context analyst inside an n8n pipeline. Build a compact episode-level context package that helps downstream planning while keeping uncertainty explicit."
+            }
+          ]
+        }
+      },
+      "id": "ec7308c9-8aa0-49a8-90d5-c5f30282c625",
+      "name": "Episode Context Analysis Chain",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        2100,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "id",
+          "value": "gpt-5.3-chat-latest"
+        },
+        "responsesApiEnabled": false,
+        "options": {
+          "temperature": 1,
+          "timeout": 120000
+        }
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "iJ0rT6FtNysjeetC",
+          "name": "[kikick] 테스트 키 #1"
+        }
+      },
+      "id": "c4ce3717-5521-489b-860b-34ea1452a929",
+      "name": "Episode Context Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        2100,
+        560
+      ]
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"additionalProperties\": false,\n  \"required\": [\n    \"episode_summary\",\n    \"central_conflict\",\n    \"dramatic_question\",\n    \"scene_functions\",\n    \"relationship_progressions\",\n    \"continuity_watchouts\"\n  ],\n  \"properties\": {\n    \"episode_summary\": {\n      \"type\": \"string\"\n    },\n    \"central_conflict\": {\n      \"type\": \"string\"\n    },\n    \"dramatic_question\": {\n      \"type\": \"string\"\n    },\n    \"scene_functions\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"object\",\n        \"additionalProperties\": false,\n        \"required\": [\n          \"scene_id\",\n          \"function\",\n          \"why_it_matters\"\n        ],\n        \"properties\": {\n          \"scene_id\": {\n            \"type\": \"string\"\n          },\n          \"function\": {\n            \"type\": \"string\"\n          },\n          \"why_it_matters\": {\n            \"type\": \"string\"\n          }\n        }\n      }\n    },\n    \"relationship_progressions\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"object\",\n        \"additionalProperties\": false,\n        \"required\": [\n          \"pair\",\n          \"starting_state\",\n          \"change\",\n          \"current_implication\",\n          \"confidence\"\n        ],\n        \"properties\": {\n          \"pair\": {\n            \"type\": \"array\",\n            \"items\": {\n              \"type\": \"string\"\n            }\n          },\n          \"starting_state\": {\n            \"type\": \"string\"\n          },\n          \"change\": {\n            \"type\": \"string\"\n          },\n          \"current_implication\": {\n            \"type\": \"string\"\n          },\n          \"confidence\": {\n            \"type\": \"string\"\n          }\n        }\n      }\n    },\n    \"continuity_watchouts\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"string\"\n      }\n    }\n  }\n}",
+        "autoFix": false
+      },
+      "id": "0a1f6037-48ef-4218-9bec-a3bfb57b7c18",
+      "name": "Episode Context Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        2340,
+        560
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const item = $input.first().json;\nconst normalizedInput = item.normalizedInput ?? {};\nconst analysisInput = item.episodeContextAnalysisInput ?? normalizedInput;\nconst parsed = item.output && typeof item.output === 'object' ? item.output : item;\nconst story = analysisInput.story_text_structured ?? {};\nconst segments = Array.isArray(story.segments) ? story.segments : [];\nconst relationships = Array.isArray(normalizedInput.entity_candidates?.relationships)\n  ? normalizedInput.entity_candidates.relationships\n  : [];\nconst llmWatchouts = Array.isArray(parsed.continuity_watchouts) ? parsed.continuity_watchouts : [];\n\nconst uniqueStrings = (values) => [...new Set(\n  values\n    .filter((value) => typeof value === 'string')\n    .map((value) => value.trim())\n    .filter(Boolean),\n)];\n\nconst totalContinuityRisks = segments.reduce(\n  (sum, segment) => sum + (Array.isArray(segment.continuity_risks) ? segment.continuity_risks.length : 0),\n  0,\n);\n\nconst relationshipSignalCount = segments.reduce(\n  (sum, segment) => sum + (Array.isArray(segment.relationship_signals) ? segment.relationship_signals.length : 0),\n  0,\n);\n\nconst recurringCharacters = uniqueStrings(\n  segments.flatMap((segment) => Array.isArray(segment.entities?.characters) ? segment.entities.characters : []),\n);\n\nconst recurringLocations = uniqueStrings(\n  segments.flatMap((segment) => Array.isArray(segment.entities?.locations) ? segment.entities.locations : []),\n);\n\nconst recurringProps = uniqueStrings(\n  segments.flatMap((segment) => Array.isArray(segment.entities?.props) ? segment.entities.props : []),\n);\n\nconst relationshipPenalty = relationships.length > 0 && relationshipSignalCount === 0 ? 8 : 0;\nconst riskPenalty = Math.min(totalContinuityRisks * 6, 30);\nconst structureBonus = Math.min(Math.max(segments.length - 1, 0) * 2, 10);\nconst recurrenceBonus = Math.min(\n  recurringCharacters.length + Math.min(recurringLocations.length, 2) + Math.min(recurringProps.length, 2),\n  12,\n);\n\nconst rawScore = 70 + structureBonus + recurrenceBonus - riskPenalty - relationshipPenalty;\nconst continuityScore = Math.max(0, Math.min(100, rawScore));\n\nlet continuityConfidence = 'medium';\nif (segments.length >= 4 && totalContinuityRisks <= 2) {\n  continuityConfidence = 'high';\n} else if (segments.length <= 2 || totalContinuityRisks >= 4) {\n  continuityConfidence = 'low';\n}\n\nconst heuristicWatchouts = [];\n\nif (totalContinuityRisks > 0) {\n  heuristicWatchouts.push(`장면별 continuity_risks가 총 ${totalContinuityRisks}건 감지되어 후속 검토가 필요합니다.`);\n}\n\nif (relationships.length > 0 && relationshipSignalCount === 0) {\n  heuristicWatchouts.push('관계 후보는 존재하지만 scene 단위 relationship_signals 근거가 약합니다.');\n}\n\nif (segments.length <= 1) {\n  heuristicWatchouts.push('장면 수가 적어 episode-level continuity 판단 근거가 제한적입니다.');\n}\n\nif ((normalizedInput.input_metadata?.attachment_count ?? 0) > 0) {\n  heuristicWatchouts.push('첨부 분석이 포함되어 있으면 continuity score 해석 범위를 별도 검토해야 합니다.');\n}\n\nconst continuityWatchouts = uniqueStrings([\n  ...llmWatchouts,\n  ...heuristicWatchouts,\n]);\n\nconst episodeContext = {\n  episode_summary: parsed.episode_summary ?? story.summary ?? '',\n  central_conflict: parsed.central_conflict ?? normalizedInput.production_hints?.core_conflict ?? '',\n  dramatic_question: parsed.dramatic_question ?? '',\n  continuity_score: continuityScore,\n  continuity_confidence: continuityConfidence,\n  continuity_basis: {\n    scope: 'current_episode_only',\n    scoring_mode: item.scoringMode ?? 'heuristic_plus_llm',\n    signals: {\n      scene_count: segments.length,\n      continuity_risk_count: totalContinuityRisks,\n      relationship_signal_count: relationshipSignalCount,\n      recurring_character_count: recurringCharacters.length,\n      recurring_location_count: recurringLocations.length,\n      recurring_prop_count: recurringProps.length,\n    },\n    limitations: [\n      'prior_episode_context_unavailable',\n      'series_bible_lookup_not_connected',\n    ],\n  },\n  continuity_watchouts: continuityWatchouts,\n  scene_functions: Array.isArray(parsed.scene_functions) ? parsed.scene_functions : [],\n  relationship_progressions: Array.isArray(parsed.relationship_progressions) ? parsed.relationship_progressions : [],\n};\n\nconst status = segments.length > 0 ? 'ready' : 'partial';\n\nreturn [{\n  json: {\n    ...item,\n    episodeContextStatus: status,\n    episodeContextInputVersion: 'v1',\n    episodeContext,\n  },\n}];"
+      },
+      "id": "dfd8ff86-654b-4b68-8f97-16cdb4f63850",
+      "name": "Assemble Episode Context",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2360,
         300
       ]
     },
@@ -231,7 +327,23 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        1820,
+        2940,
+        220
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Episode Context Analysis\n정규화된 episode 입력을 바탕으로 episode summary, dramatic question, scene function, relationship progression을 구성하고 PoC용 continuity score를 계산합니다.\n\n범위:\n- current_episode_only\n- heuristic_plus_llm",
+        "height": 560,
+        "width": 1240,
+        "color": 5
+      },
+      "id": "9d7b671a-8d69-45b7-b59d-8e75376f2b02",
+      "name": "Stage Note - Episode Context",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1760,
         220
       ]
     }
@@ -308,6 +420,61 @@
         [
           {
             "node": "Assemble Normalized Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assemble Normalized Input": {
+      "main": [
+        [
+          {
+            "node": "Build Episode Context Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Episode Context Payload": {
+      "main": [
+        [
+          {
+            "node": "Episode Context Analysis Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Episode Context Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Episode Context Analysis Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Episode Context Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Episode Context Analysis Chain",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Episode Context Analysis Chain": {
+      "main": [
+        [
+          {
+            "node": "Assemble Episode Context",
             "type": "main",
             "index": 0
           }

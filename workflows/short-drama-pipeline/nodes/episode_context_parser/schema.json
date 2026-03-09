@@ -1,0 +1,86 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "episode_summary",
+    "central_conflict",
+    "dramatic_question",
+    "scene_functions",
+    "relationship_progressions",
+    "continuity_watchouts"
+  ],
+  "properties": {
+    "episode_summary": {
+      "type": "string"
+    },
+    "central_conflict": {
+      "type": "string"
+    },
+    "dramatic_question": {
+      "type": "string"
+    },
+    "scene_functions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "scene_id",
+          "function",
+          "why_it_matters"
+        ],
+        "properties": {
+          "scene_id": {
+            "type": "string"
+          },
+          "function": {
+            "type": "string"
+          },
+          "why_it_matters": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "relationship_progressions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "pair",
+          "starting_state",
+          "change",
+          "current_implication",
+          "confidence"
+        ],
+        "properties": {
+          "pair": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "starting_state": {
+            "type": "string"
+          },
+          "change": {
+            "type": "string"
+          },
+          "current_implication": {
+            "type": "string"
+          },
+          "confidence": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "continuity_watchouts": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

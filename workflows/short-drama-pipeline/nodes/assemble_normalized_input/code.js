@@ -1,14 +1,15 @@
 const item = $input.first().json;
+const parsed = item.output && typeof item.output === 'object' ? item.output : item;
 
-const sceneSegments = Array.isArray(item.scene_segments) ? item.scene_segments : [];
-const entityCandidates = item.entity_candidates ?? {
+const sceneSegments = Array.isArray(parsed.scene_segments) ? parsed.scene_segments : [];
+const entityCandidates = parsed.entity_candidates ?? {
   characters: [],
   locations: [],
   props: [],
   relationships: [],
 };
-const biblePatchCandidates = Array.isArray(item.bible_patch_candidates) ? item.bible_patch_candidates : [];
-const productionHints = item.production_hints ?? {
+const biblePatchCandidates = Array.isArray(parsed.bible_patch_candidates) ? parsed.bible_patch_candidates : [];
+const productionHints = parsed.production_hints ?? {
   dominant_mood: '',
   visual_keywords: [],
   core_conflict: '',
@@ -38,7 +39,7 @@ return [{
     normalizationStatus: 'candidate_ready',
     normalizedInput: {
       story_text_structured: {
-        summary: item.story_summary ?? '',
+        summary: parsed.story_summary ?? '',
         segments: sceneSegments.map((scene, index) => ({
           scene_index: index + 1,
           scene_id: scene.scene_id ?? `scene_${String(index + 1).padStart(2, '0')}`,
@@ -66,7 +67,7 @@ return [{
       bible_patch_candidates: biblePatchCandidates,
       production_hints: productionHints,
       input_metadata: {
-        source_type: 'text_story_form',
+        source_type: item.sourceType ?? 'text_story_form',
         language: item.detectedLanguage ?? 'ko',
         scene_count: sceneSegments.length,
         detected_character_count: detectedCharacters.length,
