@@ -5,6 +5,7 @@
       "parameters": {
         "httpMethod": "POST",
         "path": "github-workflow-deploy",
+        "authentication": "basicAuth",
         "responseMode": "responseNode",
         "options": {}
       },
@@ -22,27 +23,9 @@
         "assignments": {
           "assignments": [
             {
-              "id": "received-secret",
-              "name": "receivedSecret",
-              "value": "={{ $json.headers['x-deploy-secret'] || '' }}",
-              "type": "string"
-            },
-            {
-              "id": "expected-secret",
-              "name": "expectedSecret",
-              "value": "={{ $env.N8N_DEPLOY_WEBHOOK_SECRET || '' }}",
-              "type": "string"
-            },
-            {
               "id": "n8n-base-url",
               "name": "n8nBaseUrl",
-              "value": "={{ ($env.N8N_API_BASE_URL || '').replace(/\\/$/, '') }}",
-              "type": "string"
-            },
-            {
-              "id": "n8n-api-key",
-              "name": "n8nApiKey",
-              "value": "={{ $env.N8N_API_KEY || '' }}",
+              "value": "={{ (($json.headers['x-forwarded-proto'] || 'https') + '://' + ($json.headers['x-forwarded-host'] || $json.headers.host || '')).replace(/\\/$/, '') }}",
               "type": "string"
             },
             {
@@ -98,7 +81,7 @@
       "parameters": {
         "mode": "runOnceForAllItems",
         "language": "javaScript",
-        "jsCode": "const item = $input.first().json;\nconst missing = [];\n\nif (!item.receivedSecret) missing.push('X-Deploy-Secret header');\nif (!item.expectedSecret) missing.push('N8N_DEPLOY_WEBHOOK_SECRET env');\nif (!item.rawUrl) missing.push('body.rawUrl');\nif (!item.workflowName) missing.push('body.workflowName');\nif (!item.n8nBaseUrl) missing.push('N8N_API_BASE_URL env');\nif (!item.n8nApiKey) missing.push('N8N_API_KEY env');\n\nif (missing.length > 0) {\n  throw new Error(`Missing required values: ${missing.join(', ')}`);\n}\n\nif (item.receivedSecret !== item.expectedSecret) {\n  throw new Error('Invalid deploy secret');\n}\n\nif (!/^https?:\\/\\//.test(item.rawUrl)) {\n  throw new Error('body.rawUrl must start with http:// or https://');\n}\n\nreturn [\n  {\n    json: {\n      ...item,\n      validationStatus: 'ok',\n    },\n  },\n];"
+        "jsCode": "const item = $input.first().json;\nconst missing = [];\n\nif (!item.rawUrl) missing.push('body.rawUrl');\nif (!item.workflowName) missing.push('body.workflowName');\nif (!item.n8nBaseUrl) missing.push('derived n8n base URL from webhook headers');\n\nif (missing.length > 0) {\n  throw new Error(`Missing required values: ${missing.join(', ')}`);\n}\n\nif (!/^https?:\\/\\//.test(item.rawUrl)) {\n  throw new Error('body.rawUrl must start with http:// or https://');\n}\n\nreturn [\n  {\n    json: {\n      ...item,\n      validationStatus: 'ok',\n    },\n  },\n];"
       },
       "id": "validate-deploy-request",
       "name": "Validate Deploy Request",
@@ -132,17 +115,10 @@
     },
     {
       "parameters": {
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
         "method": "GET",
         "url": "={{ $node['Validate Deploy Request'].json.n8nBaseUrl + '/api/v1/workflows?name=' + encodeURIComponent($node['Validate Deploy Request'].json.workflowName) }}",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "X-N8N-API-KEY",
-              "value": "={{ $node['Validate Deploy Request'].json.n8nApiKey }}"
-            }
-          ]
-        },
         "options": {
           "response": {
             "response": {
@@ -177,17 +153,10 @@
     },
     {
       "parameters": {
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
         "method": "={{ $json.requestMethod }}",
         "url": "={{ $json.requestUrl }}",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "X-N8N-API-KEY",
-              "value": "={{ $node['Validate Deploy Request'].json.n8nApiKey }}"
-            }
-          ]
-        },
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={{ JSON.stringify($json.requestBody) }}",

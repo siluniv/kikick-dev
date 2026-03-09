@@ -1,22 +1,7 @@
 [
   {
-    "name": "receivedSecret",
-    "value": "={{ $json.headers['x-deploy-secret'] || '' }}",
-    "type": "string"
-  },
-  {
-    "name": "expectedSecret",
-    "value": "={{ $env.N8N_DEPLOY_WEBHOOK_SECRET || '' }}",
-    "type": "string"
-  },
-  {
     "name": "n8nBaseUrl",
-    "value": "={{ ($env.N8N_API_BASE_URL || '').replace(/\\/$/, '') }}",
-    "type": "string"
-  },
-  {
-    "name": "n8nApiKey",
-    "value": "={{ $env.N8N_API_KEY || '' }}",
+    "value": "={{ (($json.headers['x-forwarded-proto'] || 'https') + '://' + ($json.headers['x-forwarded-host'] || $json.headers.host || '')).replace(/\\/$/, '') }}",
     "type": "string"
   },
   {
