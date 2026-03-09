@@ -1,0 +1,28 @@
+---
+description: n8n workflow folder structure and node companion file rules
+globs: workflows/**
+alwaysApply: false
+---
+
+# n8n Workflow Layout
+
+- Create each workflow as a single folder.
+- Each workflow folder must contain an import-ready `workflow.json`.
+- Each workflow folder must also contain a `nodes/` directory for readable source artifacts.
+- `workflow.json` must stay in a format that n8n can import directly from a URL.
+- Mirror node assets under `nodes/<node-slug>/`.
+- Build the local node slug from the human-readable node name using lowercase snake case.
+- Example: node name `Build Mock Scene Plan` maps to `nodes/build_mock_scene_plan/`.
+- If you need prefixes for grouping, use them only when they improve clarity.
+- For `Code` nodes, always create a companion implementation file such as `nodes/<node-slug>/code.js` or `nodes/<node-slug>/code.py`.
+- For long prompts, expressions, or templates, add companion files in the same node folder with clear names such as `prompt.md`, `expression.txt`, or `template.json`.
+- Companion files are for maintainability only; the real runtime value must still be present inside `workflow.json`.
+
+## Minimum Structure
+
+```text
+my_workflow/
+workflow.json
+nodes/
+nodes/build_mock_scene_plan/code.js
+```

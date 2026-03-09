@@ -1,0 +1,12 @@
+---
+description: n8n MCP usage is limited to search_nodes for now
+globs: workflows/**
+alwaysApply: false
+---
+
+# n8n MCP Usage
+
+- The available n8n MCP server is `user-n8n-mcp`.
+- For now, only use the `search_nodes` tool from that MCP server.
+- Do not rely on other n8n MCP tools unless the user explicitly expands the allowed scope later.
+- Use `search_nodes` to look up candidate nodes and examples before building unfamiliar n8n steps.

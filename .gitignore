@@ -1,0 +1,35 @@
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor and IDE state
+.idea/
+.vscode/
+
+# Keep shared Cursor rules, ignore other local Cursor state
+.cursor/*
+!.cursor/rules/
+!.cursor/rules/**
+
+# Logs and temp files
+*.log
+*.tmp
+*.temp
+
+# Secrets and environment files
+.env
+.env.*
+!.env.example
+
+# Node / JavaScript
+node_modules/
+dist/
+coverage/
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.mypy_cache/
+.venv/
+venv/

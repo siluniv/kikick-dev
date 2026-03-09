@@ -1,0 +1,17 @@
+[
+  {
+    "name": "workflowName",
+    "value": "short-drama-pipeline",
+    "type": "string"
+  },
+  {
+    "name": "importCheck",
+    "value": true,
+    "type": "boolean"
+  },
+  {
+    "name": "submittedInput",
+    "value": "={{ $json.testInput || '' }}",
+    "type": "string"
+  }
+]

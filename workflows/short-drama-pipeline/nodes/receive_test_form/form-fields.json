@@ -1,0 +1,9 @@
+[
+  {
+    "fieldLabel": "Test Input",
+    "fieldType": "text",
+    "placeholder": "Type anything to test the import",
+    "requiredField": false,
+    "elementName": "testInput"
+  }
+]

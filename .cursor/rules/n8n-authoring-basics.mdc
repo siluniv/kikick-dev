@@ -1,0 +1,21 @@
+---
+description: n8n workflow.json authoring defaults and import constraints
+globs: workflows/*/workflow.json
+alwaysApply: false
+---
+
+# n8n workflow.json Rules
+
+- Target `n8n` version is `2.9.4`.
+- Available tooling includes `ffmpeg`, `Execute Command`, and `Read/Write File`.
+- Default directory for reading and writing data is `/data/shared` unless the user explicitly asks for another path.
+- `Code` nodes may use JavaScript or Python.
+- Do not manually set workflow `id` values. Leave workflow IDs absent so n8n can generate them on import.
+- Use meaningful, human-readable node names in the actual n8n workflow.
+- When a node needs complex expressions, long prompts, or large text blocks, keep the full value inline inside `workflow.json` so the file remains directly importable in n8n.
+
+## Examples
+
+- Good node name: `Build Mock Scene Plan`
+- Good default path: `/data/shared/input.mp4`
+- Avoid: manually inventing workflow IDs or replacing importable inline content with external-only references

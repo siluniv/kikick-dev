@@ -1,0 +1,84 @@
+{
+  "name": "short-drama-pipeline",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "short-drama-pipeline-test",
+        "formTitle": "Short Drama Pipeline Test",
+        "formDescription": "Import test form for the short-drama-pipeline workflow.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Test Input",
+              "fieldType": "text",
+              "placeholder": "Type anything to test the import",
+              "requiredField": false,
+              "elementName": "testInput"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "receive-test-form",
+      "name": "Receive Test Form",
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        260,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "workflow-name",
+              "name": "workflowName",
+              "value": "short-drama-pipeline",
+              "type": "string"
+            },
+            {
+              "id": "import-check",
+              "name": "importCheck",
+              "value": true,
+              "type": "boolean"
+            },
+            {
+              "id": "submitted-input",
+              "name": "submittedInput",
+              "value": "={{ $json.testInput || '' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "set-import-test-values",
+      "name": "Set Import Test Values",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        540,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Receive Test Form": {
+      "main": [
+        [
+          {
+            "node": "Set Import Test Values",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "active": false,
+  "settings": {}
+}
