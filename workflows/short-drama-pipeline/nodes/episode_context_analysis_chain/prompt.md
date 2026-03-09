@@ -8,6 +8,7 @@ Important rules:
 - Keep enum-like values in snake_case.
 - Use concise phrases, not long paragraphs, except for `episode_summary`.
 - Make scene functions reflect dramatic role inside this single episode.
+- Preserve each `scene_id` exactly as given in the input. Never invent, rename, shorten, or re-number scene IDs.
 - Relationship progressions must stay grounded in explicit scene evidence.
 - Return only the data requested by the output schema. No markdown. No extra commentary.
 

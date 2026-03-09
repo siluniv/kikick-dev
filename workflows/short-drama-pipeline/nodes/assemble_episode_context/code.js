@@ -25,6 +25,19 @@ const uniqueStrings = (values) => [...new Set(
     .filter(Boolean),
 )];
 
+const countRecurringEntities = (selector) => {
+  const counts = new Map();
+
+  segments.forEach((segment) => {
+    const values = uniqueStrings(selector(segment));
+    values.forEach((value) => {
+      counts.set(value, (counts.get(value) ?? 0) + 1);
+    });
+  });
+
+  return [...counts.values()].filter((count) => count > 1).length;
+};
+
 const totalContinuityRisks = segments.reduce(
   (sum, segment) => sum + (Array.isArray(segment.continuity_risks) ? segment.continuity_risks.length : 0),
   0,
@@ -35,23 +48,25 @@ const relationshipSignalCount = segments.reduce(
   0,
 );
 
-const recurringCharacters = uniqueStrings(
-  segments.flatMap((segment) => Array.isArray(segment.entities?.characters) ? segment.entities.characters : []),
+const recurringCharacterCount = countRecurringEntities(
+  (segment) => Array.isArray(segment.entities?.characters) ? segment.entities.characters : [],
 );
 
-const recurringLocations = uniqueStrings(
-  segments.flatMap((segment) => Array.isArray(segment.entities?.locations) ? segment.entities.locations : []),
+const recurringLocationCount = countRecurringEntities(
+  (segment) => Array.isArray(segment.entities?.locations) ? segment.entities.locations : [],
 );
 
-const recurringProps = uniqueStrings(
-  segments.flatMap((segment) => Array.isArray(segment.entities?.props) ? segment.entities.props : []),
+const recurringPropCount = countRecurringEntities(
+  (segment) => Array.isArray(segment.entities?.props) ? segment.entities.props : [],
 );
+
+const sourceSceneIds = segments.map((segment) => segment.scene_id).filter((value) => typeof value === 'string' && value);
 
 const relationshipPenalty = relationships.length > 0 && relationshipSignalCount === 0 ? 8 : 0;
 const riskPenalty = Math.min(totalContinuityRisks * 6, 30);
 const structureBonus = Math.min(Math.max(segments.length - 1, 0) * 2, 10);
 const recurrenceBonus = Math.min(
-  recurringCharacters.length + Math.min(recurringLocations.length, 2) + Math.min(recurringProps.length, 2),
+  recurringCharacterCount + Math.min(recurringLocationCount, 2) + Math.min(recurringPropCount, 2),
   12,
 );
 
@@ -88,6 +103,29 @@ const continuityWatchouts = uniqueStrings([
   ...heuristicWatchouts,
 ]);
 
+const normalizedSceneFunctions = Array.isArray(parsed.scene_functions)
+  ? parsed.scene_functions.map((sceneFunction, index) => {
+      const requestedSceneId = typeof sceneFunction?.scene_id === 'string' ? sceneFunction.scene_id.trim() : '';
+      const fallbackSceneId = sourceSceneIds[index] ?? '';
+      const sceneId = sourceSceneIds.includes(requestedSceneId) ? requestedSceneId : fallbackSceneId;
+
+      return {
+        scene_id: sceneId,
+        function: typeof sceneFunction?.function === 'string' ? sceneFunction.function : '',
+        why_it_matters: typeof sceneFunction?.why_it_matters === 'string' ? sceneFunction.why_it_matters : '',
+      };
+    })
+  : [];
+
+if (Array.isArray(parsed.scene_functions) && normalizedSceneFunctions.some((sceneFunction, index) => {
+  const requestedSceneId = typeof parsed.scene_functions[index]?.scene_id === 'string'
+    ? parsed.scene_functions[index].scene_id.trim()
+    : '';
+  return requestedSceneId && requestedSceneId !== sceneFunction.scene_id;
+})) {
+  continuityWatchouts.push('scene_functions의 일부 scene_id가 입력 contract와 달라 입력 scene_id 기준으로 보정되었습니다.');
+}
+
 const episodeContext = {
   episode_summary: parsed.episode_summary ?? story.summary ?? '',
   central_conflict: parsed.central_conflict ?? normalizedInput.production_hints?.core_conflict ?? '',
@@ -101,9 +139,9 @@ const episodeContext = {
       scene_count: segments.length,
       continuity_risk_count: totalContinuityRisks,
       relationship_signal_count: relationshipSignalCount,
-      recurring_character_count: recurringCharacters.length,
-      recurring_location_count: recurringLocations.length,
-      recurring_prop_count: recurringProps.length,
+      recurring_character_count: recurringCharacterCount,
+      recurring_location_count: recurringLocationCount,
+      recurring_prop_count: recurringPropCount,
     },
     limitations: [
       'prior_episode_context_unavailable',
@@ -111,7 +149,7 @@ const episodeContext = {
     ],
   },
   continuity_watchouts: continuityWatchouts,
-  scene_functions: Array.isArray(parsed.scene_functions) ? parsed.scene_functions : [],
+  scene_functions: normalizedSceneFunctions,
   relationship_progressions: Array.isArray(parsed.relationship_progressions) ? parsed.relationship_progressions : [],
 };
 
