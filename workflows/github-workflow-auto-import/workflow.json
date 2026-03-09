@@ -9,7 +9,7 @@
         "responseMode": "responseNode",
         "options": {}
       },
-      "id": "receive-deploy-webhook",
+      "id": "acd9709d-9e98-4581-a92e-ffc0c4b61550",
       "name": "Receive Deploy Webhook",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2.1,
@@ -68,7 +68,7 @@
         },
         "options": {}
       },
-      "id": "prepare-deploy-context",
+      "id": "7f9dc090-299d-49e3-a7f4-d3a39be62eab",
       "name": "Prepare Deploy Context",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
@@ -83,7 +83,7 @@
         "language": "javaScript",
         "jsCode": "const item = $input.first().json;\nconst missing = [];\n\nif (!item.rawUrl) missing.push('body.rawUrl');\nif (!item.workflowName) missing.push('body.workflowName');\nif (!item.n8nBaseUrl) missing.push('derived n8n base URL from webhook headers');\n\nif (missing.length > 0) {\n  throw new Error(`Missing required values: ${missing.join(', ')}`);\n}\n\nif (!/^https?:\\/\\//.test(item.rawUrl)) {\n  throw new Error('body.rawUrl must start with http:// or https://');\n}\n\nreturn [\n  {\n    json: {\n      ...item,\n      validationStatus: 'ok',\n    },\n  },\n];"
       },
-      "id": "validate-deploy-request",
+      "id": "60665aa1-d2d5-42a7-a982-498ca28b7e05",
       "name": "Validate Deploy Request",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -104,7 +104,7 @@
           }
         }
       },
-      "id": "download-workflow-definition",
+      "id": "52ae89ea-a0a2-4c09-8230-47198e98b288",
       "name": "Download Workflow Definition",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
@@ -127,7 +127,7 @@
           }
         }
       },
-      "id": "find-existing-workflow",
+      "id": "65d237e6-1e51-4acf-9cf3-15d88425f006",
       "name": "Find Existing Workflow",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
@@ -142,7 +142,7 @@
         "language": "javaScript",
         "jsCode": "const deploy = $node['Validate Deploy Request'].json;\nconst searchResult = $input.first().json;\nconst importedWorkflow = $node['Download Workflow Definition'].json;\n\nconst candidateList = Array.isArray(searchResult?.data)\n  ? searchResult.data\n  : Array.isArray(searchResult?.items)\n    ? searchResult.items\n    : Array.isArray(searchResult)\n      ? searchResult\n      : [];\n\nconst existingWorkflow = candidateList.find(\n  (workflow) => workflow && workflow.name === deploy.workflowName,\n);\n\nconst requestBody = {\n  name: importedWorkflow.name || deploy.workflowName,\n  nodes: importedWorkflow.nodes || [],\n  connections: importedWorkflow.connections || {},\n  settings: importedWorkflow.settings || {},\n  pinData: importedWorkflow.pinData || {},\n};\n\nif (importedWorkflow.staticData) {\n  requestBody.staticData = importedWorkflow.staticData;\n}\n\nif (Array.isArray(importedWorkflow.tags) && importedWorkflow.tags.length > 0) {\n  requestBody.tags = importedWorkflow.tags;\n}\n\nif (importedWorkflow.projectId) {\n  requestBody.projectId = importedWorkflow.projectId;\n}\n\nconst requestMethod = existingWorkflow ? 'PUT' : 'POST';\nconst requestUrl = existingWorkflow\n  ? `${deploy.n8nBaseUrl}/api/v1/workflows/${existingWorkflow.id}`\n  : `${deploy.n8nBaseUrl}/api/v1/workflows`;\n\nreturn [\n  {\n    json: {\n      ...deploy,\n      operation: existingWorkflow ? 'update' : 'create',\n      existingWorkflowId: existingWorkflow?.id || '',\n      requestMethod,\n      requestUrl,\n      requestBody,\n    },\n  },\n];"
       },
-      "id": "build-upsert-request",
+      "id": "9a70e1d5-d211-4f98-8d78-bfe4cbfb260e",
       "name": "Build Upsert Request",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -168,7 +168,7 @@
           }
         }
       },
-      "id": "upsert-workflow",
+      "id": "6cb75755-7f4b-45b0-8fe6-6d2e1b58fe3f",
       "name": "Upsert Workflow",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
@@ -239,7 +239,7 @@
         },
         "options": {}
       },
-      "id": "build-deploy-response",
+      "id": "5a804e2a-9372-431b-b387-351d310dd5a3",
       "name": "Build Deploy Response",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
@@ -256,7 +256,7 @@
           "enableStreaming": false
         }
       },
-      "id": "respond-to-webhook",
+      "id": "2d2b1c88-3bfc-4195-a05c-b54bb119be16",
       "name": "Respond to Webhook",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.5,

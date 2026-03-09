@@ -54,6 +54,26 @@ jobs:
           CHANGED_FILES: ${{ steps.changed.outputs.files }}
         shell: bash
         run: |
+          webhook_url="$(printf '%s' "$N8N_DEPLOY_WEBHOOK_URL" | tr -d '\r\n')"
+          webhook_username="$(printf '%s' "$N8N_DEPLOY_WEBHOOK_USERNAME" | tr -d '\r\n')"
+          webhook_password="$(printf '%s' "$N8N_DEPLOY_WEBHOOK_PASSWORD" | tr -d '\r\n')"
+
+          if [[ -z "$webhook_url" ]]; then
+            echo "N8N_DEPLOY_WEBHOOK_URL secret is empty"
+            exit 1
+          fi
+
+          if [[ ! "$webhook_url" =~ ^https?:// ]]; then
+            echo "N8N_DEPLOY_WEBHOOK_URL must start with http:// or https://"
+            echo "Current value: $webhook_url"
+            exit 1
+          fi
+
+          if [[ -z "$webhook_username" || -z "$webhook_password" ]]; then
+            echo "N8N_DEPLOY_WEBHOOK_USERNAME or N8N_DEPLOY_WEBHOOK_PASSWORD secret is empty"
+            exit 1
+          fi
+
           while IFS= read -r workflow_file; do
             [[ -z "$workflow_file" ]] && continue
 
@@ -77,8 +97,8 @@ jobs:
               }')"
 
             curl --fail --show-error --silent \
-              -X POST "$N8N_DEPLOY_WEBHOOK_URL" \
-              --user "$N8N_DEPLOY_WEBHOOK_USERNAME:$N8N_DEPLOY_WEBHOOK_PASSWORD" \
+              -X POST "$webhook_url" \
+              --user "$webhook_username:$webhook_password" \
               -H "Content-Type: application/json" \
               -d "$payload"
           done <<< "$CHANGED_FILES"

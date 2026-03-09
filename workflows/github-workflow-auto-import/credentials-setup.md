@@ -28,6 +28,7 @@
 - `N8N_DEPLOY_WEBHOOK_URL`: Production webhook URL from `Receive Deploy Webhook`
 - `N8N_DEPLOY_WEBHOOK_USERNAME`: username from the webhook basic auth credential
 - `N8N_DEPLOY_WEBHOOK_PASSWORD`: password from the webhook basic auth credential
+- Make sure `N8N_DEPLOY_WEBHOOK_URL` is the production webhook URL, starts with `http://` or `https://`, and does not include extra line breaks.
 
 ## Notes
 
