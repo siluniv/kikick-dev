@@ -34,3 +34,4 @@
 
 - This workflow derives the n8n base URL from the incoming webhook headers, so no extra deploy environment variable is required.
 - The actual workflow create or update logic still works by workflow name.
+- GitHub Actions skips `workflows/github-workflow-auto-import/workflow.json`, so this deploy workflow should be updated manually in n8n.

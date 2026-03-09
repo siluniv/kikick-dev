@@ -19,7 +19,6 @@ const requestBody = {
   nodes: importedWorkflow.nodes || [],
   connections: importedWorkflow.connections || {},
   settings: importedWorkflow.settings || {},
-  pinData: importedWorkflow.pinData || {},
 };
 
 if (importedWorkflow.staticData) {
