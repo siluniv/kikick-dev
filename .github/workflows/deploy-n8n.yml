@@ -1,0 +1,84 @@
+name: Deploy changed n8n workflows
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'workflows/*/workflow.json'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Collect changed workflow files
+        id: changed
+        shell: bash
+        run: |
+          before_sha="${{ github.event.before }}"
+          after_sha="${{ github.sha }}"
+
+          if [[ "$before_sha" == "0000000000000000000000000000000000000000" ]]; then
+            changed_files="$(git ls-files 'workflows/*/workflow.json')"
+          else
+            changed_files="$(git diff --name-only "$before_sha" "$after_sha" -- 'workflows/*/workflow.json')"
+          fi
+
+          if [[ -z "$changed_files" ]]; then
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "has_changes=true" >> "$GITHUB_OUTPUT"
+          {
+            echo "files<<EOF"
+            echo "$changed_files"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Send changed workflows to n8n
+        if: steps.changed.outputs.has_changes == 'true'
+        env:
+          N8N_DEPLOY_WEBHOOK_URL: ${{ secrets.N8N_DEPLOY_WEBHOOK_URL }}
+          N8N_DEPLOY_WEBHOOK_USERNAME: ${{ secrets.N8N_DEPLOY_WEBHOOK_USERNAME }}
+          N8N_DEPLOY_WEBHOOK_PASSWORD: ${{ secrets.N8N_DEPLOY_WEBHOOK_PASSWORD }}
+          REPOSITORY: ${{ github.repository }}
+          BRANCH: ${{ github.ref_name }}
+          COMMIT_SHA: ${{ github.sha }}
+          CHANGED_FILES: ${{ steps.changed.outputs.files }}
+        shell: bash
+        run: |
+          while IFS= read -r workflow_file; do
+            [[ -z "$workflow_file" ]] && continue
+
+            workflow_name="$(basename "$(dirname "$workflow_file")")"
+            raw_url="https://raw.githubusercontent.com/${REPOSITORY}/${BRANCH}/${workflow_file}"
+
+            payload="$(jq -n \
+              --arg repository "$REPOSITORY" \
+              --arg branch "$BRANCH" \
+              --arg commitSha "$COMMIT_SHA" \
+              --arg workflowName "$workflow_name" \
+              --arg workflowPath "$workflow_file" \
+              --arg rawUrl "$raw_url" \
+              '{
+                repository: $repository,
+                branch: $branch,
+                commitSha: $commitSha,
+                workflowName: $workflowName,
+                workflowPath: $workflowPath,
+                rawUrl: $rawUrl
+              }')"
+
+            curl --fail --show-error --silent \
+              -X POST "$N8N_DEPLOY_WEBHOOK_URL" \
+              --user "$N8N_DEPLOY_WEBHOOK_USERNAME:$N8N_DEPLOY_WEBHOOK_PASSWORD" \
+              -H "Content-Type: application/json" \
+              -d "$payload"
+          done <<< "$CHANGED_FILES"
