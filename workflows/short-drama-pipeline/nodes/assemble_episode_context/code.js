@@ -1,6 +1,15 @@
 const item = $input.first().json;
-const normalizedInput = item.normalizedInput ?? {};
-const analysisInput = item.episodeContextAnalysisInput ?? normalizedInput;
+const payloadNode = $node['Build Episode Context Payload']?.json ?? {};
+const normalizedNode = $node['Assemble Normalized Input']?.json ?? {};
+const normalizedInput =
+  item.normalizedInput
+  ?? payloadNode.normalizedInput
+  ?? normalizedNode.normalizedInput
+  ?? {};
+const analysisInput =
+  item.episodeContextAnalysisInput
+  ?? payloadNode.episodeContextAnalysisInput
+  ?? normalizedInput;
 const parsed = item.output && typeof item.output === 'object' ? item.output : item;
 const story = analysisInput.story_text_structured ?? {};
 const segments = Array.isArray(story.segments) ? story.segments : [];
