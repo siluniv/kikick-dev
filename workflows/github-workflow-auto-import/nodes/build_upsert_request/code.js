@@ -33,7 +33,7 @@ if (importedWorkflow.projectId) {
   requestBody.projectId = importedWorkflow.projectId;
 }
 
-const requestMethod = existingWorkflow ? 'PUT' : 'POST';
+const requestMethod = existingWorkflow ? 'PATCH' : 'POST';
 const requestUrl = existingWorkflow
   ? `${deploy.n8nBaseUrl}/api/v1/workflows/${existingWorkflow.id}`
   : `${deploy.n8nBaseUrl}/api/v1/workflows`;
