@@ -11,11 +11,15 @@ alwaysApply: false
 - Default directory for reading and writing data is `/data/shared` unless the user explicitly asks for another path.
 - `Code` nodes may use JavaScript or Python.
 - Do not manually set workflow `id` values. Leave workflow IDs absent so n8n can generate them on import.
+- Node-level `id` values are allowed and should use stable `UUID v4` values.
+- Generate node `id` values using a real UUID generator such as a UUID library or a command like `curl -s https://www.uuidgenerator.net/api/version4`, not by inventing them manually.
+- Once a node `id` is assigned, keep it stable and do not change it unless the node is being replaced.
 - Use meaningful, human-readable node names in the actual n8n workflow.
 - When a node needs complex expressions, long prompts, or large text blocks, keep the full value inline inside `workflow.json` so the file remains directly importable in n8n.
 
 ## Examples
 
 - Good node name: `Build Mock Scene Plan`
+- Good node id: `494810a4-f694-4793-8acd-2a28358e0ccc`
 - Good default path: `/data/shared/input.mp4`
-- Avoid: manually inventing workflow IDs or replacing importable inline content with external-only references
+- Avoid: manually inventing workflow IDs, hand-written node IDs like `set-import-test-values`, or replacing importable inline content with external-only references

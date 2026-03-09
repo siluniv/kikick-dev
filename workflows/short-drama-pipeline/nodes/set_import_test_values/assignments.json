@@ -10,8 +10,8 @@
     "type": "boolean"
   },
   {
-    "name": "submittedInput",
-    "value": "={{ $json.testInput || '' }}",
+    "name": "submittedStory",
+    "value": "={{ $json.story || '' }}",
     "type": "string"
   }
 ]
