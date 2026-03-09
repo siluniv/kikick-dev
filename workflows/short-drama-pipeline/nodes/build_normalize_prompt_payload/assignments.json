@@ -1,0 +1,22 @@
+[
+  {
+    "name": "chatInput",
+    "value": "={{ $json.submittedStory }}",
+    "type": "string"
+  },
+  {
+    "name": "normalizationScope",
+    "value": "input_normalize_poc",
+    "type": "string"
+  },
+  {
+    "name": "biblePolicy",
+    "value": "candidate_only_no_canon_write",
+    "type": "string"
+  },
+  {
+    "name": "sourceType",
+    "value": "text_form_story",
+    "type": "string"
+  }
+]

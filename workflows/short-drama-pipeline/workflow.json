@@ -64,6 +64,139 @@
         540,
         300
       ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const item = $input.first().json;\nconst submittedStory = String(item.submittedStory ?? item.story ?? '').replace(/\\r\\n/g, '\\n').trim();\n\nif (!submittedStory) {\n  throw new Error('submittedStory is empty. Enter story text in the form before running Input Normalize.');\n}\n\nconst cleanedStory = submittedStory\n  .replace(/\\t/g, ' ')\n  .replace(/[ \\u00A0]+/g, ' ')\n  .replace(/\\n{3,}/g, '\\n\\n')\n  .trim();\n\nconst sceneHeadingCount = (cleanedStory.match(/^#\\s*\\d+[^\\n]*/gm) ?? []).length;\nconst storyLineCount = cleanedStory.split('\\n').filter((line) => line.trim().length > 0).length;\n\nreturn [{\n  json: {\n    ...item,\n    submittedStory: cleanedStory,\n    sceneHeadingCount,\n    storyLineCount,\n    detectedLanguage: 'ko',\n    inputStage: 'input_received',\n  },\n}];"
+      },
+      "id": "cb170c99-8820-491a-96ab-fb04cedea7a7",
+      "name": "Validate Story Input",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        800,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "chat-input",
+              "name": "chatInput",
+              "value": "={{ $json.submittedStory }}",
+              "type": "string"
+            },
+            {
+              "id": "normalization-scope",
+              "name": "normalizationScope",
+              "value": "input_normalize_poc",
+              "type": "string"
+            },
+            {
+              "id": "bible-policy",
+              "name": "biblePolicy",
+              "value": "candidate_only_no_canon_write",
+              "type": "string"
+            },
+            {
+              "id": "source-type",
+              "name": "sourceType",
+              "value": "text_form_story",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "a61df76a-d1f5-4b1b-ba80-3e5a0e6e79d1",
+      "name": "Build Normalize Prompt Payload",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1060,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ `You are the Input Normalize step of an AI short-drama generation pipeline.\nYour job is to transform raw user story text into structured candidate metadata for downstream planning.\n\nImportant rules:\n- Do not invent canon facts. Treat all extracted world details as candidates unless they are explicit in the story text.\n- Do not write definitive Series Bible updates. Only propose candidate patches.\n- Preserve ambiguity with lower confidence values.\n- Keep natural-language values in Korean.\n- Keep enum-like values in snake_case.\n- Use concise phrases, not long paragraphs, except for scene summary and story_summary.\n- If a character has no explicit name, keep a stable Korean placeholder label such as \"여주인공\" or \"의문의 남성\".\n- If a location is implied from a scene heading, include it.\n- If the text suggests emotional or relationship shifts, capture them as signals or candidate patches, not canon truth.\n- Return only the data requested by the output schema. No markdown. No extra commentary.\n\nWorkflow context:\n- workflow_name: ${$json.workflowName || 'short-drama-pipeline'}\n- normalization_scope: ${$json.normalizationScope || 'input_normalize_poc'}\n- bible_policy: ${$json.biblePolicy || 'candidate_only_no_canon_write'}\n- source_type: ${$json.sourceType || 'text_form_story'}\n- scene_heading_count: ${$json.sceneHeadingCount || 0}\n- line_count: ${$json.storyLineCount || 0}\n\nStory text:\n${$json.chatInput}` }}",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "type": "SystemMessagePromptTemplate",
+              "message": "You are a Korean drama development analyst inside an n8n pipeline. Extract only what is supported by the text, keep uncertainty explicit, and prepare candidate metadata for downstream planning."
+            }
+          ]
+        }
+      },
+      "id": "991729e0-2339-4375-9965-1f5abcdde322",
+      "name": "Input Normalize Chain",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        1320,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "id",
+          "value": "gpt-5-mini"
+        },
+        "responsesApiEnabled": false,
+        "options": {
+          "temperature": 0.2,
+          "maxTokens": 4000,
+          "timeout": 120000
+        }
+      },
+      "id": "3922a7f8-409d-4378-85d0-11d3133c185c",
+      "name": "Input Normalize Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        1320,
+        560
+      ]
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"additionalProperties\": false,\n  \"required\": [\n    \"story_summary\",\n    \"scene_segments\",\n    \"entity_candidates\",\n    \"bible_patch_candidates\",\n    \"production_hints\"\n  ],\n  \"properties\": {\n    \"story_summary\": {\n      \"type\": \"string\"\n    },\n    \"scene_segments\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"object\",\n        \"additionalProperties\": false,\n        \"required\": [\n          \"scene_id\",\n          \"scene_heading\",\n          \"summary\",\n          \"intent\",\n          \"emotion_tone\",\n          \"key_actions\",\n          \"characters\",\n          \"locations\",\n          \"props\",\n          \"relationship_signals\",\n          \"continuity_risks\"\n        ],\n        \"properties\": {\n          \"scene_id\": {\n            \"type\": \"string\"\n          },\n          \"scene_heading\": {\n            \"type\": \"string\"\n          },\n          \"summary\": {\n            \"type\": \"string\"\n          },\n          \"intent\": {\n            \"type\": \"string\"\n          },\n          \"emotion_tone\": {\n            \"type\": \"array\",\n            \"items\": {\n              \"type\": \"string\"\n            }\n          },\n          \"key_actions\": {\n            \"type\": \"array\",\n            \"items\": {\n              \"type\": \"string\"\n            }\n          },\n          \"characters\": {\n            \"type\": \"array\",\n            \"items\": {\n              \"type\": \"string\"\n            }\n          },\n          \"locations\": {\n            \"type\": \"array\",\n            \"items\": {\n              \"type\": \"string\"\n            }\n          },\n          \"props\": {\n            \"type\": \"array\",\n            \"items\": {\n              \"type\": \"string\"\n            }\n          },\n          \"relationship_signals\": {\n            \"type\": \"array\",\n            \"items\": {\n              \"type\": \"string\"\n            }\n          },\n          \"continuity_risks\": {\n            \"type\": \"array\",\n            \"items\": {\n              \"type\": \"string\"\n            }\n          }\n        }\n      }\n    },\n    \"entity_candidates\": {\n      \"type\": \"object\",\n      \"additionalProperties\": false,\n      \"required\": [\n        \"characters\",\n        \"locations\",\n        \"props\",\n        \"relationships\"\n      ],\n      \"properties\": {\n        \"characters\": {\n          \"type\": \"array\",\n          \"items\": {\n            \"type\": \"object\",\n            \"additionalProperties\": false,\n            \"required\": [\n              \"name\",\n              \"role\",\n              \"traits\",\n              \"evidence\",\n              \"confidence\"\n            ],\n            \"properties\": {\n              \"name\": {\n                \"type\": \"string\"\n              },\n              \"role\": {\n                \"type\": \"string\"\n              },\n              \"traits\": {\n                \"type\": \"array\",\n                \"items\": {\n                  \"type\": \"string\"\n                }\n              },\n              \"evidence\": {\n                \"type\": \"array\",\n                \"items\": {\n                  \"type\": \"string\"\n                }\n              },\n              \"confidence\": {\n                \"type\": \"string\"\n              }\n            }\n          }\n        },\n        \"locations\": {\n          \"type\": \"array\",\n          \"items\": {\n            \"type\": \"object\",\n            \"additionalProperties\": false,\n            \"required\": [\n              \"name\",\n              \"type\",\n              \"attributes\",\n              \"evidence\",\n              \"confidence\"\n            ],\n            \"properties\": {\n              \"name\": {\n                \"type\": \"string\"\n              },\n              \"type\": {\n                \"type\": \"string\"\n              },\n              \"attributes\": {\n                \"type\": \"array\",\n                \"items\": {\n                  \"type\": \"string\"\n                }\n              },\n              \"evidence\": {\n                \"type\": \"array\",\n                \"items\": {\n                  \"type\": \"string\"\n                }\n              },\n              \"confidence\": {\n                \"type\": \"string\"\n              }\n            }\n          }\n        },\n        \"props\": {\n          \"type\": \"array\",\n          \"items\": {\n            \"type\": \"object\",\n            \"additionalProperties\": false,\n            \"required\": [\n              \"name\",\n              \"dramatic_use\",\n              \"evidence\",\n              \"confidence\"\n            ],\n            \"properties\": {\n              \"name\": {\n                \"type\": \"string\"\n              },\n              \"dramatic_use\": {\n                \"type\": \"string\"\n              },\n              \"evidence\": {\n                \"type\": \"array\",\n                \"items\": {\n                  \"type\": \"string\"\n                }\n              },\n              \"confidence\": {\n                \"type\": \"string\"\n              }\n            }\n          }\n        },\n        \"relationships\": {\n          \"type\": \"array\",\n          \"items\": {\n            \"type\": \"object\",\n            \"additionalProperties\": false,\n            \"required\": [\n              \"pair\",\n              \"status\",\n              \"change_signal\",\n              \"evidence\",\n              \"confidence\"\n            ],\n            \"properties\": {\n              \"pair\": {\n                \"type\": \"array\",\n                \"items\": {\n                  \"type\": \"string\"\n                }\n              },\n              \"status\": {\n                \"type\": \"string\"\n              },\n              \"change_signal\": {\n                \"type\": \"string\"\n              },\n              \"evidence\": {\n                \"type\": \"array\",\n                \"items\": {\n                  \"type\": \"string\"\n                }\n              },\n              \"confidence\": {\n                \"type\": \"string\"\n              }\n            }\n          }\n        }\n      }\n    },\n    \"bible_patch_candidates\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"object\",\n        \"additionalProperties\": false,\n        \"required\": [\n          \"entity_type\",\n          \"entity_name\",\n          \"proposed_change\",\n          \"evidence\",\n          \"confidence\"\n        ],\n        \"properties\": {\n          \"entity_type\": {\n            \"type\": \"string\"\n          },\n          \"entity_name\": {\n            \"type\": \"string\"\n          },\n          \"proposed_change\": {\n            \"type\": \"string\"\n          },\n          \"evidence\": {\n            \"type\": \"array\",\n            \"items\": {\n              \"type\": \"string\"\n            }\n          },\n          \"confidence\": {\n            \"type\": \"string\"\n          }\n        }\n      }\n    },\n    \"production_hints\": {\n      \"type\": \"object\",\n      \"additionalProperties\": false,\n      \"required\": [\n        \"dominant_mood\",\n        \"visual_keywords\",\n        \"core_conflict\",\n        \"estimated_complexity\"\n      ],\n      \"properties\": {\n        \"dominant_mood\": {\n          \"type\": \"string\"\n        },\n        \"visual_keywords\": {\n          \"type\": \"array\",\n          \"items\": {\n            \"type\": \"string\"\n          }\n        },\n        \"core_conflict\": {\n          \"type\": \"string\"\n        },\n        \"estimated_complexity\": {\n          \"type\": \"string\"\n        }\n      }\n    }\n  }\n}",
+        "autoFix": false
+      },
+      "id": "2347398d-c55c-40a9-81b3-6a309c1e1e4a",
+      "name": "Input Normalize Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1560,
+        560
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const item = $input.first().json;\n\nconst sceneSegments = Array.isArray(item.scene_segments) ? item.scene_segments : [];\nconst entityCandidates = item.entity_candidates ?? {\n  characters: [],\n  locations: [],\n  props: [],\n  relationships: [],\n};\nconst biblePatchCandidates = Array.isArray(item.bible_patch_candidates) ? item.bible_patch_candidates : [];\nconst productionHints = item.production_hints ?? {\n  dominant_mood: '',\n  visual_keywords: [],\n  core_conflict: '',\n  estimated_complexity: 'unknown',\n};\n\nconst uniqueStrings = (values) => [...new Set(\n  values\n    .filter((value) => typeof value === 'string')\n    .map((value) => value.trim())\n    .filter(Boolean),\n)];\n\nconst detectedCharacters = uniqueStrings([\n  ...sceneSegments.flatMap((scene) => Array.isArray(scene.characters) ? scene.characters : []),\n  ...((entityCandidates.characters ?? []).map((character) => character.name)),\n]);\n\nconst detectedLocations = uniqueStrings([\n  ...sceneSegments.flatMap((scene) => Array.isArray(scene.locations) ? scene.locations : []),\n  ...((entityCandidates.locations ?? []).map((location) => location.name)),\n]);\n\nreturn [{\n  json: {\n    ...item,\n    normalizationStatus: 'candidate_ready',\n    normalizedInput: {\n      story_text_structured: {\n        summary: item.story_summary ?? '',\n        segments: sceneSegments.map((scene, index) => ({\n          scene_index: index + 1,\n          scene_id: scene.scene_id ?? `scene_${String(index + 1).padStart(2, '0')}`,\n          scene_heading: scene.scene_heading ?? '',\n          summary: scene.summary ?? '',\n          intent: scene.intent ?? '',\n          emotion_tone: Array.isArray(scene.emotion_tone) ? scene.emotion_tone : [],\n          key_actions: Array.isArray(scene.key_actions) ? scene.key_actions : [],\n          entities: {\n            characters: Array.isArray(scene.characters) ? scene.characters : [],\n            locations: Array.isArray(scene.locations) ? scene.locations : [],\n            props: Array.isArray(scene.props) ? scene.props : [],\n          },\n          relationship_signals: Array.isArray(scene.relationship_signals) ? scene.relationship_signals : [],\n          continuity_risks: Array.isArray(scene.continuity_risks) ? scene.continuity_risks : [],\n        })),\n      },\n      resolved_references: {\n        characters: [],\n        locations: [],\n        props: [],\n      },\n      attachment_analysis: [],\n      entity_candidates: entityCandidates,\n      bible_patch_candidates: biblePatchCandidates,\n      production_hints: productionHints,\n      input_metadata: {\n        source_type: 'text_story_form',\n        language: item.detectedLanguage ?? 'ko',\n        scene_count: sceneSegments.length,\n        detected_character_count: detectedCharacters.length,\n        detected_location_count: detectedLocations.length,\n        bible_patch_candidate_count: biblePatchCandidates.length,\n        attachment_count: 0,\n        estimated_complexity: productionHints.estimated_complexity ?? 'unknown',\n      },\n    },\n  },\n}];"
+      },
+      "id": "31a9c0bb-81e2-4b05-86c0-f348e0b7b510",
+      "name": "Assemble Normalized Input",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1580,
+        300
+      ]
     }
   ],
   "connections": {
@@ -72,6 +205,72 @@
         [
           {
             "node": "Set Import Test Values",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Import Test Values": {
+      "main": [
+        [
+          {
+            "node": "Validate Story Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Story Input": {
+      "main": [
+        [
+          {
+            "node": "Build Normalize Prompt Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Normalize Prompt Payload": {
+      "main": [
+        [
+          {
+            "node": "Input Normalize Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Input Normalize Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Input Normalize Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Input Normalize Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Input Normalize Chain",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Input Normalize Chain": {
+      "main": [
+        [
+          {
+            "node": "Assemble Normalized Input",
             "type": "main",
             "index": 0
           }

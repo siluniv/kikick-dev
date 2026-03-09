@@ -1,0 +1,306 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "story_summary",
+    "scene_segments",
+    "entity_candidates",
+    "bible_patch_candidates",
+    "production_hints"
+  ],
+  "properties": {
+    "story_summary": {
+      "type": "string"
+    },
+    "scene_segments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "scene_id",
+          "scene_heading",
+          "summary",
+          "intent",
+          "emotion_tone",
+          "key_actions",
+          "characters",
+          "locations",
+          "props",
+          "relationship_signals",
+          "continuity_risks"
+        ],
+        "properties": {
+          "scene_id": {
+            "type": "string"
+          },
+          "scene_heading": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "intent": {
+            "type": "string"
+          },
+          "emotion_tone": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "key_actions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "characters": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "locations": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "props": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "relationship_signals": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "continuity_risks": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "entity_candidates": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "characters",
+        "locations",
+        "props",
+        "relationships"
+      ],
+      "properties": {
+        "characters": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "name",
+              "role",
+              "traits",
+              "evidence",
+              "confidence"
+            ],
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "role": {
+                "type": "string"
+              },
+              "traits": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "evidence": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "confidence": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "locations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "name",
+              "type",
+              "attributes",
+              "evidence",
+              "confidence"
+            ],
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              },
+              "attributes": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "evidence": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "confidence": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "props": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "name",
+              "dramatic_use",
+              "evidence",
+              "confidence"
+            ],
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "dramatic_use": {
+                "type": "string"
+              },
+              "evidence": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "confidence": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "relationships": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "pair",
+              "status",
+              "change_signal",
+              "evidence",
+              "confidence"
+            ],
+            "properties": {
+              "pair": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "status": {
+                "type": "string"
+              },
+              "change_signal": {
+                "type": "string"
+              },
+              "evidence": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "confidence": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "bible_patch_candidates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "entity_type",
+          "entity_name",
+          "proposed_change",
+          "evidence",
+          "confidence"
+        ],
+        "properties": {
+          "entity_type": {
+            "type": "string"
+          },
+          "entity_name": {
+            "type": "string"
+          },
+          "proposed_change": {
+            "type": "string"
+          },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "confidence": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "production_hints": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "dominant_mood",
+        "visual_keywords",
+        "core_conflict",
+        "estimated_complexity"
+      ],
+      "properties": {
+        "dominant_mood": {
+          "type": "string"
+        },
+        "visual_keywords": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "core_conflict": {
+          "type": "string"
+        },
+        "estimated_complexity": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
