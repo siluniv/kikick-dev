@@ -159,6 +159,9 @@ const emotionalArc = {
 return [{
   json: {
     ...item,
+    normalizedInput,
+    episodeContext,
+    planningContext,
     storyDevelopmentStatus: normalizedBeatSheet.length > 0 ? 'ready' : 'partial',
     storyDevelopmentInputVersion: 'v1',
     storyDevelopment: {

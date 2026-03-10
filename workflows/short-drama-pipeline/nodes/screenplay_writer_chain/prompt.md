@@ -22,6 +22,8 @@ Workflow context:
 - beat_count: ${$json.screenplayInput?.story_development?.beat_sheet?.length || 0}
 - target_tone: ${$json.screenplayInput?.planning_context?.series_context?.tone || 'drama'}
 - arc_phase: ${$json.screenplayInput?.planning_context?.narrative_context?.arc_phase || 'unknown'}
+- allowed_character_ids: ${JSON.stringify(($json.screenplayInput?.planning_context?.character_context || []).map((character) => character.id))}
+- allowed_location_ids: ${JSON.stringify(($json.screenplayInput?.planning_context?.location_context || []).map((location) => location.id))}
 
 Screenplay input JSON:
 ${JSON.stringify($json.screenplayInput, null, 2)}
