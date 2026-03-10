@@ -214,8 +214,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1840,
-        300
+        540,
+        900
       ]
     },
     {
@@ -237,8 +237,8 @@
       "type": "@n8n/n8n-nodes-langchain.chainLlm",
       "typeVersion": 1.9,
       "position": [
-        2100,
-        300
+        800,
+        900
       ]
     },
     {
@@ -265,8 +265,8 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
       "typeVersion": 1.3,
       "position": [
-        2100,
-        560
+        800,
+        1160
       ]
     },
     {
@@ -280,8 +280,8 @@
       "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
       "typeVersion": 1.3,
       "position": [
-        2340,
-        560
+        1060,
+        1160
       ]
     },
     {
@@ -295,8 +295,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2360,
-        300
+        1060,
+        900
       ]
     },
     {
@@ -310,8 +310,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2640,
-        300
+        540,
+        1540
       ]
     },
     {
@@ -325,8 +325,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2920,
-        300
+        540,
+        1960
       ]
     },
     {
@@ -348,8 +348,8 @@
       "type": "@n8n/n8n-nodes-langchain.chainLlm",
       "typeVersion": 1.9,
       "position": [
-        3180,
-        300
+        800,
+        1960
       ]
     },
     {
@@ -376,8 +376,8 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
       "typeVersion": 1.3,
       "position": [
-        3180,
-        560
+        800,
+        2220
       ]
     },
     {
@@ -391,8 +391,8 @@
       "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
       "typeVersion": 1.3,
       "position": [
-        3420,
-        560
+        1060,
+        2220
       ]
     },
     {
@@ -406,8 +406,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        3440,
-        300
+        1060,
+        1960
       ]
     },
     {
@@ -429,7 +429,7 @@
     {
       "parameters": {
         "content": "## OpenAI Credential Pinning\n고정이 꼭 필요할 때만 아래처럼 추가합니다.\n\n```json\n\"credentials\": {\n  \"openAiApi\": {\n    \"id\": \"YOUR_CREDENTIAL_ID\",\n    \"name\": \"OpenAI account\"\n  }\n}\n```\n\n보통은 비워 두고 import 후 UI에서 연결하는 편이 더 이식성이 좋습니다.",
-        "height": 320,
+        "height": 280,
         "width": 520,
         "color": 2
       },
@@ -438,15 +438,15 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        4300,
-        220
+        1840,
+        160
       ]
     },
     {
       "parameters": {
         "content": "## Episode Context Analysis\n정규화된 episode 입력을 바탕으로 episode summary, dramatic question, scene function, relationship progression을 구성하고 PoC용 continuity score를 계산합니다.\n\n범위:\n- current_episode_only\n- heuristic_plus_llm",
         "height": 560,
-        "width": 840,
+        "width": 980,
         "color": 5
       },
       "id": "9d7b671a-8d69-45b7-b59d-8e75376f2b02",
@@ -454,15 +454,15 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        1760,
-        220
+        440,
+        760
       ]
     },
     {
       "parameters": {
         "content": "## Context Selection Engine\nEpisode Context 결과와 현재 episode contract를 바탕으로 Story Developer가 바로 사용할 planningContext를 조립합니다.\n\n범위:\n- current_episode_only\n- deterministic_poc",
-        "height": 360,
-        "width": 820,
+        "height": 260,
+        "width": 560,
         "color": 4
       },
       "id": "86184421-b248-4532-a63c-b63825214968",
@@ -470,8 +470,8 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        2560,
-        220
+        440,
+        1440
       ]
     },
     {
@@ -486,8 +486,8 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        2860,
-        220
+        440,
+        1820
       ]
     }
   ],
