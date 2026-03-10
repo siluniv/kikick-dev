@@ -8,9 +8,12 @@ Important rules:
 - Preserve `source_beats` exactly as beat IDs from the input beat sheet.
 - Use `location_id` values only from the provided `planning_context.location_context[].id`.
 - Use `characters_present` and `actions[].character` values only from the provided `planning_context.character_context[].id`.
+- Use `dialogue[].speaker` values only from the provided `planning_context.character_context[].id`.
 - `scene_id` must use the format `sc_001`, `sc_002`, ... in sequence.
+- Use `time_of_day` only from: `morning`, `day`, `evening`, `night`, `late_night`, `unspecified`.
 - Every scene must contain `heading`, `description`, `actions`, `dialogue`, `mood`, and `duration_target_sec`.
 - Dialogue may be sparse in PoC mode, but each scene should still define an explicit `dialogue` array.
+- Never return empty strings for `location_id`, `characters_present`, `actions[].character`, or `dialogue[].speaker`.
 - Keep the screenplay aligned with the beat sheet and emotional arc.
 - Return only the data requested by the output schema. No markdown. No extra commentary.
 
