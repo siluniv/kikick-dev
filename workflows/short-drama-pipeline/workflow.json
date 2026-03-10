@@ -316,6 +316,102 @@
     },
     {
       "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const item = $input.first().json;\nconst planningNode = item.planningContext ? item : ($node['Context Selection Engine']?.json ?? item);\n\nreturn [{\n  json: {\n    ...planningNode,\n    storyDevelopmentInput: {\n      normalized_input: planningNode.normalizedInput ?? {},\n      episode_context: planningNode.episodeContext ?? {},\n      planning_context: planningNode.planningContext ?? {},\n    },\n  },\n}];"
+      },
+      "id": "25919297-5b7d-4412-a7a1-a88e7357e7ba",
+      "name": "Build Story Development Payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2920,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ `You are the Story Developer step of an AI short-drama generation pipeline.\nYour job is to convert planning context into a compact, production-ready story development package.\n\nImportant rules:\n- Work only from the provided planning context, episode context, and normalized input.\n- Keep natural-language values in Korean.\n- Keep enum-like values in snake_case.\n- Produce a beat sheet with 6 to 8 beats unless the planning context strongly requires fewer.\n- Keep \\`beat_id\\` sequential starting from 1.\n- \\`duration_ratio\\` values should approximately sum to 1.0 across the beat sheet.\n- \\`tension\\` must be a number between 0 and 1.\n- Emotional arc must align with the generated beat sheet.\n- Do not invent external canon or prior-episode events beyond the provided context.\n- Return only the data requested by the output schema. No markdown. No extra commentary.\n\nWorkflow context:\n- workflow_name: ${$json.workflowName || 'short-drama-pipeline'}\n- continuity_score: ${$json.storyDevelopmentInput?.episode_context?.continuity_score ?? 0.7}\n- arc_phase: ${$json.storyDevelopmentInput?.planning_context?.narrative_context?.arc_phase || 'unknown'}\n- tension_target: ${$json.storyDevelopmentInput?.planning_context?.narrative_context?.tension_target ?? 0.7}\n- creative_freedom: ${$json.storyDevelopmentInput?.planning_context?.creative_constraints?.creative_freedom ?? 0.3}\n\nStory development input JSON:\n${JSON.stringify($json.storyDevelopmentInput, null, 2)}` }}",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "type": "SystemMessagePromptTemplate",
+              "message": "You are a Korean drama story developer inside an n8n pipeline. Build a structured beat sheet and emotional arc that downstream screenplay generation can trust."
+            }
+          ]
+        }
+      },
+      "id": "4cc1ebb5-04c8-4686-ab3f-3111719764b8",
+      "name": "Story Developer Chain",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        3180,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "id",
+          "value": "gpt-5.3-chat-latest"
+        },
+        "responsesApiEnabled": false,
+        "options": {
+          "temperature": 1,
+          "timeout": 120000
+        }
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "iJ0rT6FtNysjeetC",
+          "name": "[kikick] 테스트 키 #1"
+        }
+      },
+      "id": "0e028ac3-4e58-42ba-82eb-1012f4da1ebf",
+      "name": "Story Developer Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        3180,
+        560
+      ]
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"additionalProperties\": false,\n  \"required\": [\n    \"density_analysis\",\n    \"creative_strategy\",\n    \"beat_sheet\",\n    \"emotional_arc\"\n  ],\n  \"properties\": {\n    \"density_analysis\": {\n      \"type\": \"object\",\n      \"additionalProperties\": false,\n      \"required\": [\n        \"level\",\n        \"rationale\"\n      ],\n      \"properties\": {\n        \"level\": {\n          \"type\": \"string\"\n        },\n        \"rationale\": {\n          \"type\": \"string\"\n        }\n      }\n    },\n    \"creative_strategy\": {\n      \"type\": \"object\",\n      \"additionalProperties\": false,\n      \"required\": [\n        \"primary\",\n        \"secondary\",\n        \"style_notes\"\n      ],\n      \"properties\": {\n        \"primary\": {\n          \"type\": \"string\"\n        },\n        \"secondary\": {\n          \"type\": \"string\"\n        },\n        \"style_notes\": {\n          \"type\": \"string\"\n        }\n      }\n    },\n    \"beat_sheet\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"object\",\n        \"additionalProperties\": false,\n        \"required\": [\n          \"beat_id\",\n          \"type\",\n          \"description\",\n          \"emotion\",\n          \"tension\",\n          \"duration_ratio\"\n        ],\n        \"properties\": {\n          \"beat_id\": {\n            \"type\": \"number\"\n          },\n          \"type\": {\n            \"type\": \"string\"\n          },\n          \"description\": {\n            \"type\": \"string\"\n          },\n          \"emotion\": {\n            \"type\": \"string\"\n          },\n          \"tension\": {\n            \"type\": \"number\"\n          },\n          \"duration_ratio\": {\n            \"type\": \"number\"\n          }\n        }\n      }\n    },\n    \"emotional_arc\": {\n      \"type\": \"object\",\n      \"additionalProperties\": false,\n      \"required\": [\n        \"opening_emotion\",\n        \"peak_emotion\",\n        \"closing_emotion\",\n        \"arc_shape\",\n        \"intensity_curve\"\n      ],\n      \"properties\": {\n        \"opening_emotion\": {\n          \"type\": \"string\"\n        },\n        \"peak_emotion\": {\n          \"type\": \"string\"\n        },\n        \"closing_emotion\": {\n          \"type\": \"string\"\n        },\n        \"arc_shape\": {\n          \"type\": \"string\"\n        },\n        \"intensity_curve\": {\n          \"type\": \"array\",\n          \"items\": {\n            \"type\": \"number\"\n          }\n        }\n      }\n    }\n  }\n}",
+        "autoFix": false
+      },
+      "id": "28f3a623-62a1-4542-a7c0-01e2e2de7a42",
+      "name": "Story Developer Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        3420,
+        560
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const item = $input.first().json;\nconst payloadNode = $node['Build Story Development Payload']?.json ?? {};\nconst planningNode = $node['Context Selection Engine']?.json ?? {};\nconst parsed = item.output && typeof item.output === 'object' ? item.output : item;\nconst normalizedInput =\n  item.normalizedInput\n  ?? payloadNode.normalizedInput\n  ?? planningNode.normalizedInput\n  ?? {};\nconst episodeContext =\n  item.episodeContext\n  ?? payloadNode.episodeContext\n  ?? planningNode.episodeContext\n  ?? {};\nconst planningContext =\n  item.planningContext\n  ?? payloadNode.planningContext\n  ?? planningNode.planningContext\n  ?? {};\n\nconst segments = Array.isArray(normalizedInput.story_text_structured?.segments)\n  ? normalizedInput.story_text_structured.segments\n  : [];\nconst sceneFunctions = Array.isArray(episodeContext.scene_functions)\n  ? episodeContext.scene_functions\n  : [];\n\nconst clamp = (value, min, max) => Math.min(max, Math.max(min, value));\n\nconst fallbackDensityLevel = (() => {\n  const sceneCount = normalizedInput.input_metadata?.scene_count ?? segments.length;\n  if (sceneCount >= 8) {\n    return 'high';\n  }\n  if (sceneCount >= 5) {\n    return 'medium';\n  }\n  return 'low';\n})();\n\nconst densityAnalysis = {\n  level: parsed.density_analysis?.level ?? fallbackDensityLevel,\n  rationale: parsed.density_analysis?.rationale\n    ?? `${segments.length}개 안팎의 장면과 ${episodeContext.central_conflict ? '명확한 중심 갈등' : '단일 에피소드 중심 사건'}을 바탕으로 한 ${fallbackDensityLevel} 밀도 에피소드`,\n};\n\nconst creativeStrategy = {\n  primary: parsed.creative_strategy?.primary ?? 'emotional_drama',\n  secondary: parsed.creative_strategy?.secondary ?? 'suspense',\n  style_notes: parsed.creative_strategy?.style_notes\n    ?? `${episodeContext.central_conflict || episodeContext.dramatic_question || '관계 변화'}를 중심으로 감정선과 긴장을 병행`,\n};\n\nconst fallbackBeatSheet = sceneFunctions.map((sceneFunction, index) => {\n  const segment = segments[index] ?? {};\n  const beatTypes = ['setup', 'catalyst', 'confrontation', 'midpoint', 'climax', 'resolution'];\n  const beatType = beatTypes[Math.min(index, beatTypes.length - 1)];\n  const durationRatio = Number((1 / Math.max(sceneFunctions.length || 1, 1)).toFixed(2));\n  const tension = Number(clamp(0.3 + index * 0.12, 0.2, 0.95).toFixed(2));\n\n  return {\n    beat_id: index + 1,\n    type: beatType,\n    description: sceneFunction.why_it_matters || segment.summary || '',\n    emotion: Array.isArray(segment.emotion_tone) && segment.emotion_tone.length > 0\n      ? segment.emotion_tone[0]\n      : 'neutral',\n    tension,\n    duration_ratio: durationRatio,\n  };\n});\n\nconst normalizedBeatSheet = Array.isArray(parsed.beat_sheet) && parsed.beat_sheet.length > 0\n  ? parsed.beat_sheet.map((beat, index, array) => ({\n      beat_id: index + 1,\n      type: typeof beat?.type === 'string' ? beat.type : 'progression',\n      description: typeof beat?.description === 'string' ? beat.description : '',\n      emotion: typeof beat?.emotion === 'string' ? beat.emotion : 'neutral',\n      tension: Number(clamp(Number(beat?.tension ?? 0.5), 0, 1).toFixed(2)),\n      duration_ratio: Number(clamp(Number(beat?.duration_ratio ?? (1 / Math.max(array.length, 1))), 0.05, 0.5).toFixed(2)),\n    }))\n  : fallbackBeatSheet;\n\nconst emotionalArc = {\n  opening_emotion: parsed.emotional_arc?.opening_emotion\n    ?? normalizedBeatSheet[0]?.emotion\n    ?? 'neutral',\n  peak_emotion: parsed.emotional_arc?.peak_emotion\n    ?? normalizedBeatSheet.reduce((best, beat) => (beat.tension > best.tension ? beat : best), normalizedBeatSheet[0] ?? { emotion: 'neutral', tension: 0 }).emotion,\n  closing_emotion: parsed.emotional_arc?.closing_emotion\n    ?? normalizedBeatSheet[normalizedBeatSheet.length - 1]?.emotion\n    ?? 'neutral',\n  arc_shape: parsed.emotional_arc?.arc_shape ?? 'rising_with_twist',\n  intensity_curve: Array.isArray(parsed.emotional_arc?.intensity_curve) && parsed.emotional_arc.intensity_curve.length > 0\n    ? parsed.emotional_arc.intensity_curve.map((value) => Number(clamp(Number(value), 0, 1).toFixed(2)))\n    : normalizedBeatSheet.map((beat) => beat.tension),\n};\n\nreturn [{\n  json: {\n    ...item,\n    storyDevelopmentStatus: normalizedBeatSheet.length > 0 ? 'ready' : 'partial',\n    storyDevelopmentInputVersion: 'v1',\n    storyDevelopment: {\n      density_analysis: densityAnalysis,\n      creative_strategy: creativeStrategy,\n      beat_sheet: normalizedBeatSheet,\n      emotional_arc: emotionalArc,\n    },\n  },\n}];"
+      },
+      "id": "ff545b31-a530-441a-b0de-4aff4ae00985",
+      "name": "Assemble Story Development",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3440,
+        300
+      ]
+    },
+    {
+      "parameters": {
         "content": "## Input Normalize\n스토리 입력을 정리하고, LLM으로 구조화한 뒤, 후속 단계에서 바로 사용할 수 있는 정규화 JSON으로 조립합니다.\n\n포함 노드:\n- Set Import Test Values\n- Validate Story Input\n- Build Normalize Prompt Payload\n- Input Normalize Chain / Model / Parser\n- Assemble Normalized Input",
         "height": 560,
         "width": 1320,
@@ -342,7 +438,7 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        3440,
+        4300,
         220
       ]
     },
@@ -375,6 +471,22 @@
       "typeVersion": 1,
       "position": [
         2560,
+        220
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Story Developer\nplanningContext를 바탕으로 density_analysis, creative_strategy, beat_sheet, emotional_arc를 생성합니다.\n\n범위:\n- hybrid_llm_plus_fallback\n- canonical_output: storyDevelopment",
+        "height": 560,
+        "width": 980,
+        "color": 3
+      },
+      "id": "d1a29c97-285b-4d22-99fa-16fccd741b3d",
+      "name": "Stage Note - Story Developer",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2860,
         220
       ]
     }
@@ -517,6 +629,61 @@
         [
           {
             "node": "Context Selection Engine",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Context Selection Engine": {
+      "main": [
+        [
+          {
+            "node": "Build Story Development Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Story Development Payload": {
+      "main": [
+        [
+          {
+            "node": "Story Developer Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Story Developer Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Story Developer Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Story Developer Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Story Developer Chain",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Story Developer Chain": {
+      "main": [
+        [
+          {
+            "node": "Assemble Story Development",
             "type": "main",
             "index": 0
           }

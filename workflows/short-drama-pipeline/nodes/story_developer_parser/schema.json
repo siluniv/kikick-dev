@@ -1,0 +1,114 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "density_analysis",
+    "creative_strategy",
+    "beat_sheet",
+    "emotional_arc"
+  ],
+  "properties": {
+    "density_analysis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "level",
+        "rationale"
+      ],
+      "properties": {
+        "level": {
+          "type": "string"
+        },
+        "rationale": {
+          "type": "string"
+        }
+      }
+    },
+    "creative_strategy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "primary",
+        "secondary",
+        "style_notes"
+      ],
+      "properties": {
+        "primary": {
+          "type": "string"
+        },
+        "secondary": {
+          "type": "string"
+        },
+        "style_notes": {
+          "type": "string"
+        }
+      }
+    },
+    "beat_sheet": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "beat_id",
+          "type",
+          "description",
+          "emotion",
+          "tension",
+          "duration_ratio"
+        ],
+        "properties": {
+          "beat_id": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "emotion": {
+            "type": "string"
+          },
+          "tension": {
+            "type": "number"
+          },
+          "duration_ratio": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "emotional_arc": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "opening_emotion",
+        "peak_emotion",
+        "closing_emotion",
+        "arc_shape",
+        "intensity_curve"
+      ],
+      "properties": {
+        "opening_emotion": {
+          "type": "string"
+        },
+        "peak_emotion": {
+          "type": "string"
+        },
+        "closing_emotion": {
+          "type": "string"
+        },
+        "arc_shape": {
+          "type": "string"
+        },
+        "intensity_curve": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        }
+      }
+    }
+  }
+}
