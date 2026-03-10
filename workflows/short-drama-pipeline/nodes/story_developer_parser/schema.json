@@ -53,6 +53,7 @@
           "beat_id",
           "type",
           "description",
+          "source_scene_ids",
           "emotion",
           "tension",
           "duration_ratio"
@@ -66,6 +67,12 @@
           },
           "description": {
             "type": "string"
+          },
+          "source_scene_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           },
           "emotion": {
             "type": "string"

@@ -332,7 +332,7 @@
     {
       "parameters": {
         "promptType": "define",
-        "text": "={{ `You are the Story Developer step of an AI short-drama generation pipeline.\nYour job is to convert planning context into a compact, production-ready story development package.\n\nImportant rules:\n- Work only from the provided planning context, episode context, and normalized input.\n- Keep natural-language values in Korean.\n- Keep enum-like values in snake_case.\n- Produce a beat sheet with 6 to 8 beats unless the planning context strongly requires fewer.\n- Keep \\`beat_id\\` sequential starting from 1.\n- \\`duration_ratio\\` values should approximately sum to 1.0 across the beat sheet.\n- \\`tension\\` must be a number between 0 and 1.\n- Emotional arc must align with the generated beat sheet.\n- Do not invent external canon or prior-episode events beyond the provided context.\n- Return only the data requested by the output schema. No markdown. No extra commentary.\n\nWorkflow context:\n- workflow_name: ${$json.workflowName || 'short-drama-pipeline'}\n- continuity_score: ${$json.storyDevelopmentInput?.episode_context?.continuity_score ?? 0.7}\n- arc_phase: ${$json.storyDevelopmentInput?.planning_context?.narrative_context?.arc_phase || 'unknown'}\n- tension_target: ${$json.storyDevelopmentInput?.planning_context?.narrative_context?.tension_target ?? 0.7}\n- creative_freedom: ${$json.storyDevelopmentInput?.planning_context?.creative_constraints?.creative_freedom ?? 0.3}\n\nStory development input JSON:\n${JSON.stringify($json.storyDevelopmentInput, null, 2)}` }}",
+        "text": "={{ `You are the Story Developer step of an AI short-drama generation pipeline.\nYour job is to convert planning context into a compact, production-ready story development package.\n\nImportant rules:\n- Work only from the provided planning context, episode context, and normalized input.\n- Keep natural-language values in Korean.\n- Keep enum-like values in snake_case.\n- Use \\`creative_strategy.primary\\` and \\`creative_strategy.secondary\\` only from this set:\n  - \\`emotional_drama\\`\n  - \\`relationship_drama\\`\n  - \\`suspense_mystery\\`\n  - \\`romantic_mystery\\`\n  - \\`betrayal_reveal\\`\n- Use \\`beat_sheet[].type\\` only from this set:\n  - \\`setup\\`\n  - \\`approach\\`\n  - \\`catalyst\\`\n  - \\`confrontation\\`\n  - \\`midpoint\\`\n  - \\`fallout\\`\n  - \\`mystery_setup\\`\n  - \\`climax\\`\n  - \\`resolution\\`\n- Produce a beat sheet with 6 to 8 beats unless the planning context strongly requires fewer.\n- Keep \\`beat_id\\` sequential starting from 1.\n- Every beat must include \\`source_scene_ids\\`, and each value must exactly match scene IDs from the input.\n- \\`duration_ratio\\` values should approximately sum to 1.0 across the beat sheet.\n- \\`tension\\` must be a number between 0 and 1.\n- Emotional arc must align with the generated beat sheet.\n- Do not invent external canon or prior-episode events beyond the provided context.\n- Return only the data requested by the output schema. No markdown. No extra commentary.\n\nWorkflow context:\n- workflow_name: ${$json.workflowName || 'short-drama-pipeline'}\n- continuity_score: ${$json.storyDevelopmentInput?.episode_context?.continuity_score ?? 0.7}\n- arc_phase: ${$json.storyDevelopmentInput?.planning_context?.narrative_context?.arc_phase || 'unknown'}\n- tension_target: ${$json.storyDevelopmentInput?.planning_context?.narrative_context?.tension_target ?? 0.7}\n- creative_freedom: ${$json.storyDevelopmentInput?.planning_context?.creative_constraints?.creative_freedom ?? 0.3}\n\nStory development input JSON:\n${JSON.stringify($json.storyDevelopmentInput, null, 2)}` }}",
         "hasOutputParser": true,
         "messages": {
           "messageValues": [
@@ -383,7 +383,7 @@
     {
       "parameters": {
         "schemaType": "manual",
-        "inputSchema": "{\n  \"type\": \"object\",\n  \"additionalProperties\": false,\n  \"required\": [\n    \"density_analysis\",\n    \"creative_strategy\",\n    \"beat_sheet\",\n    \"emotional_arc\"\n  ],\n  \"properties\": {\n    \"density_analysis\": {\n      \"type\": \"object\",\n      \"additionalProperties\": false,\n      \"required\": [\n        \"level\",\n        \"rationale\"\n      ],\n      \"properties\": {\n        \"level\": {\n          \"type\": \"string\"\n        },\n        \"rationale\": {\n          \"type\": \"string\"\n        }\n      }\n    },\n    \"creative_strategy\": {\n      \"type\": \"object\",\n      \"additionalProperties\": false,\n      \"required\": [\n        \"primary\",\n        \"secondary\",\n        \"style_notes\"\n      ],\n      \"properties\": {\n        \"primary\": {\n          \"type\": \"string\"\n        },\n        \"secondary\": {\n          \"type\": \"string\"\n        },\n        \"style_notes\": {\n          \"type\": \"string\"\n        }\n      }\n    },\n    \"beat_sheet\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"object\",\n        \"additionalProperties\": false,\n        \"required\": [\n          \"beat_id\",\n          \"type\",\n          \"description\",\n          \"emotion\",\n          \"tension\",\n          \"duration_ratio\"\n        ],\n        \"properties\": {\n          \"beat_id\": {\n            \"type\": \"number\"\n          },\n          \"type\": {\n            \"type\": \"string\"\n          },\n          \"description\": {\n            \"type\": \"string\"\n          },\n          \"emotion\": {\n            \"type\": \"string\"\n          },\n          \"tension\": {\n            \"type\": \"number\"\n          },\n          \"duration_ratio\": {\n            \"type\": \"number\"\n          }\n        }\n      }\n    },\n    \"emotional_arc\": {\n      \"type\": \"object\",\n      \"additionalProperties\": false,\n      \"required\": [\n        \"opening_emotion\",\n        \"peak_emotion\",\n        \"closing_emotion\",\n        \"arc_shape\",\n        \"intensity_curve\"\n      ],\n      \"properties\": {\n        \"opening_emotion\": {\n          \"type\": \"string\"\n        },\n        \"peak_emotion\": {\n          \"type\": \"string\"\n        },\n        \"closing_emotion\": {\n          \"type\": \"string\"\n        },\n        \"arc_shape\": {\n          \"type\": \"string\"\n        },\n        \"intensity_curve\": {\n          \"type\": \"array\",\n          \"items\": {\n            \"type\": \"number\"\n          }\n        }\n      }\n    }\n  }\n}",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"additionalProperties\": false,\n  \"required\": [\n    \"density_analysis\",\n    \"creative_strategy\",\n    \"beat_sheet\",\n    \"emotional_arc\"\n  ],\n  \"properties\": {\n    \"density_analysis\": {\n      \"type\": \"object\",\n      \"additionalProperties\": false,\n      \"required\": [\n        \"level\",\n        \"rationale\"\n      ],\n      \"properties\": {\n        \"level\": {\n          \"type\": \"string\"\n        },\n        \"rationale\": {\n          \"type\": \"string\"\n        }\n      }\n    },\n    \"creative_strategy\": {\n      \"type\": \"object\",\n      \"additionalProperties\": false,\n      \"required\": [\n        \"primary\",\n        \"secondary\",\n        \"style_notes\"\n      ],\n      \"properties\": {\n        \"primary\": {\n          \"type\": \"string\"\n        },\n        \"secondary\": {\n          \"type\": \"string\"\n        },\n        \"style_notes\": {\n          \"type\": \"string\"\n        }\n      }\n    },\n    \"beat_sheet\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"object\",\n        \"additionalProperties\": false,\n        \"required\": [\n          \"beat_id\",\n          \"type\",\n          \"description\",\n          \"source_scene_ids\",\n          \"emotion\",\n          \"tension\",\n          \"duration_ratio\"\n        ],\n        \"properties\": {\n          \"beat_id\": {\n            \"type\": \"number\"\n          },\n          \"type\": {\n            \"type\": \"string\"\n          },\n          \"description\": {\n            \"type\": \"string\"\n          },\n          \"source_scene_ids\": {\n            \"type\": \"array\",\n            \"items\": {\n              \"type\": \"string\"\n            }\n          },\n          \"emotion\": {\n            \"type\": \"string\"\n          },\n          \"tension\": {\n            \"type\": \"number\"\n          },\n          \"duration_ratio\": {\n            \"type\": \"number\"\n          }\n        }\n      }\n    },\n    \"emotional_arc\": {\n      \"type\": \"object\",\n      \"additionalProperties\": false,\n      \"required\": [\n        \"opening_emotion\",\n        \"peak_emotion\",\n        \"closing_emotion\",\n        \"arc_shape\",\n        \"intensity_curve\"\n      ],\n      \"properties\": {\n        \"opening_emotion\": {\n          \"type\": \"string\"\n        },\n        \"peak_emotion\": {\n          \"type\": \"string\"\n        },\n        \"closing_emotion\": {\n          \"type\": \"string\"\n        },\n        \"arc_shape\": {\n          \"type\": \"string\"\n        },\n        \"intensity_curve\": {\n          \"type\": \"array\",\n          \"items\": {\n            \"type\": \"number\"\n          }\n        }\n      }\n    }\n  }\n}",
         "autoFix": false
       },
       "id": "28f3a623-62a1-4542-a7c0-01e2e2de7a42",
@@ -399,7 +399,7 @@
       "parameters": {
         "mode": "runOnceForAllItems",
         "language": "javaScript",
-        "jsCode": "const item = $input.first().json;\nconst payloadNode = $node['Build Story Development Payload']?.json ?? {};\nconst planningNode = $node['Context Selection Engine']?.json ?? {};\nconst parsed = item.output && typeof item.output === 'object' ? item.output : item;\nconst normalizedInput =\n  item.normalizedInput\n  ?? payloadNode.normalizedInput\n  ?? planningNode.normalizedInput\n  ?? {};\nconst episodeContext =\n  item.episodeContext\n  ?? payloadNode.episodeContext\n  ?? planningNode.episodeContext\n  ?? {};\nconst planningContext =\n  item.planningContext\n  ?? payloadNode.planningContext\n  ?? planningNode.planningContext\n  ?? {};\n\nconst segments = Array.isArray(normalizedInput.story_text_structured?.segments)\n  ? normalizedInput.story_text_structured.segments\n  : [];\nconst sceneFunctions = Array.isArray(episodeContext.scene_functions)\n  ? episodeContext.scene_functions\n  : [];\n\nconst clamp = (value, min, max) => Math.min(max, Math.max(min, value));\n\nconst fallbackDensityLevel = (() => {\n  const sceneCount = normalizedInput.input_metadata?.scene_count ?? segments.length;\n  if (sceneCount >= 8) {\n    return 'high';\n  }\n  if (sceneCount >= 5) {\n    return 'medium';\n  }\n  return 'low';\n})();\n\nconst densityAnalysis = {\n  level: parsed.density_analysis?.level ?? fallbackDensityLevel,\n  rationale: parsed.density_analysis?.rationale\n    ?? `${segments.length}개 안팎의 장면과 ${episodeContext.central_conflict ? '명확한 중심 갈등' : '단일 에피소드 중심 사건'}을 바탕으로 한 ${fallbackDensityLevel} 밀도 에피소드`,\n};\n\nconst creativeStrategy = {\n  primary: parsed.creative_strategy?.primary ?? 'emotional_drama',\n  secondary: parsed.creative_strategy?.secondary ?? 'suspense',\n  style_notes: parsed.creative_strategy?.style_notes\n    ?? `${episodeContext.central_conflict || episodeContext.dramatic_question || '관계 변화'}를 중심으로 감정선과 긴장을 병행`,\n};\n\nconst fallbackBeatSheet = sceneFunctions.map((sceneFunction, index) => {\n  const segment = segments[index] ?? {};\n  const beatTypes = ['setup', 'catalyst', 'confrontation', 'midpoint', 'climax', 'resolution'];\n  const beatType = beatTypes[Math.min(index, beatTypes.length - 1)];\n  const durationRatio = Number((1 / Math.max(sceneFunctions.length || 1, 1)).toFixed(2));\n  const tension = Number(clamp(0.3 + index * 0.12, 0.2, 0.95).toFixed(2));\n\n  return {\n    beat_id: index + 1,\n    type: beatType,\n    description: sceneFunction.why_it_matters || segment.summary || '',\n    emotion: Array.isArray(segment.emotion_tone) && segment.emotion_tone.length > 0\n      ? segment.emotion_tone[0]\n      : 'neutral',\n    tension,\n    duration_ratio: durationRatio,\n  };\n});\n\nconst normalizedBeatSheet = Array.isArray(parsed.beat_sheet) && parsed.beat_sheet.length > 0\n  ? parsed.beat_sheet.map((beat, index, array) => ({\n      beat_id: index + 1,\n      type: typeof beat?.type === 'string' ? beat.type : 'progression',\n      description: typeof beat?.description === 'string' ? beat.description : '',\n      emotion: typeof beat?.emotion === 'string' ? beat.emotion : 'neutral',\n      tension: Number(clamp(Number(beat?.tension ?? 0.5), 0, 1).toFixed(2)),\n      duration_ratio: Number(clamp(Number(beat?.duration_ratio ?? (1 / Math.max(array.length, 1))), 0.05, 0.5).toFixed(2)),\n    }))\n  : fallbackBeatSheet;\n\nconst emotionalArc = {\n  opening_emotion: parsed.emotional_arc?.opening_emotion\n    ?? normalizedBeatSheet[0]?.emotion\n    ?? 'neutral',\n  peak_emotion: parsed.emotional_arc?.peak_emotion\n    ?? normalizedBeatSheet.reduce((best, beat) => (beat.tension > best.tension ? beat : best), normalizedBeatSheet[0] ?? { emotion: 'neutral', tension: 0 }).emotion,\n  closing_emotion: parsed.emotional_arc?.closing_emotion\n    ?? normalizedBeatSheet[normalizedBeatSheet.length - 1]?.emotion\n    ?? 'neutral',\n  arc_shape: parsed.emotional_arc?.arc_shape ?? 'rising_with_twist',\n  intensity_curve: Array.isArray(parsed.emotional_arc?.intensity_curve) && parsed.emotional_arc.intensity_curve.length > 0\n    ? parsed.emotional_arc.intensity_curve.map((value) => Number(clamp(Number(value), 0, 1).toFixed(2)))\n    : normalizedBeatSheet.map((beat) => beat.tension),\n};\n\nreturn [{\n  json: {\n    ...item,\n    storyDevelopmentStatus: normalizedBeatSheet.length > 0 ? 'ready' : 'partial',\n    storyDevelopmentInputVersion: 'v1',\n    storyDevelopment: {\n      density_analysis: densityAnalysis,\n      creative_strategy: creativeStrategy,\n      beat_sheet: normalizedBeatSheet,\n      emotional_arc: emotionalArc,\n    },\n  },\n}];"
+        "jsCode": "const item = $input.first().json;\nconst payloadNode = $node['Build Story Development Payload']?.json ?? {};\nconst planningNode = $node['Context Selection Engine']?.json ?? {};\nconst parsed = item.output && typeof item.output === 'object' ? item.output : item;\nconst normalizedInput =\n  item.normalizedInput\n  ?? payloadNode.normalizedInput\n  ?? planningNode.normalizedInput\n  ?? {};\nconst episodeContext =\n  item.episodeContext\n  ?? payloadNode.episodeContext\n  ?? planningNode.episodeContext\n  ?? {};\nconst planningContext =\n  item.planningContext\n  ?? payloadNode.planningContext\n  ?? planningNode.planningContext\n  ?? {};\n\nconst segments = Array.isArray(normalizedInput.story_text_structured?.segments)\n  ? normalizedInput.story_text_structured.segments\n  : [];\nconst sceneFunctions = Array.isArray(episodeContext.scene_functions)\n  ? episodeContext.scene_functions\n  : [];\n\nconst clamp = (value, min, max) => Math.min(max, Math.max(min, value));\nconst uniqueStrings = (values) => [...new Set(\n  values\n    .filter((value) => typeof value === 'string')\n    .map((value) => value.trim())\n    .filter(Boolean),\n)];\n\nconst STRATEGY_ALIASES = {\n  emotional_drama: 'emotional_drama',\n  emotional_collapse_to_mystery: 'emotional_drama',\n  relationship_drama: 'relationship_drama',\n  romance_drama: 'relationship_drama',\n  suspense: 'suspense_mystery',\n  suspense_mystery: 'suspense_mystery',\n  mystery_hook: 'suspense_mystery',\n  romantic_mystery: 'romantic_mystery',\n  betrayal_reveal: 'betrayal_reveal',\n  betrayal_reveal_with_mystery_hook: 'betrayal_reveal',\n};\n\nconst BEAT_TYPE_ALIASES = {\n  setup: 'setup',\n  approach: 'approach',\n  catalyst: 'catalyst',\n  inciting_incident: 'catalyst',\n  confrontation: 'confrontation',\n  confrontation_observation: 'confrontation',\n  midpoint: 'midpoint',\n  emotional_fallout: 'fallout',\n  fallout: 'fallout',\n  mystery_setup: 'mystery_setup',\n  climax: 'climax',\n  cliffhanger_reveal: 'climax',\n  resolution: 'resolution',\n};\n\nconst normalizeStrategy = (value, fallback) => {\n  if (typeof value !== 'string') {\n    return fallback;\n  }\n\n  return STRATEGY_ALIASES[value.trim()] ?? fallback;\n};\n\nconst normalizeBeatType = (value, fallback) => {\n  if (typeof value !== 'string') {\n    return fallback;\n  }\n\n  return BEAT_TYPE_ALIASES[value.trim()] ?? fallback;\n};\n\nconst fallbackDensityLevel = (() => {\n  const sceneCount = normalizedInput.input_metadata?.scene_count ?? segments.length;\n  if (sceneCount >= 8) {\n    return 'high';\n  }\n  if (sceneCount >= 5) {\n    return 'medium';\n  }\n  return 'low';\n})();\n\nconst densityAnalysis = {\n  level: parsed.density_analysis?.level ?? fallbackDensityLevel,\n  rationale: parsed.density_analysis?.rationale\n    ?? `${segments.length}개 안팎의 장면과 ${episodeContext.central_conflict ? '명확한 중심 갈등' : '단일 에피소드 중심 사건'}을 바탕으로 한 ${fallbackDensityLevel} 밀도 에피소드`,\n};\n\nconst creativeStrategy = {\n  primary: normalizeStrategy(parsed.creative_strategy?.primary, 'emotional_drama'),\n  secondary: normalizeStrategy(parsed.creative_strategy?.secondary, 'suspense_mystery'),\n  style_notes: parsed.creative_strategy?.style_notes\n    ?? `${episodeContext.central_conflict || episodeContext.dramatic_question || '관계 변화'}를 중심으로 감정선과 긴장을 병행`,\n};\n\nconst fallbackBeatSheet = sceneFunctions.map((sceneFunction, index) => {\n  const segment = segments[index] ?? {};\n  const beatTypes = ['setup', 'catalyst', 'confrontation', 'midpoint', 'climax', 'resolution'];\n  const beatType = beatTypes[Math.min(index, beatTypes.length - 1)];\n  const durationRatio = Number((1 / Math.max(sceneFunctions.length || 1, 1)).toFixed(2));\n  const tension = Number(clamp(0.3 + index * 0.12, 0.2, 0.95).toFixed(2));\n\n  return {\n    beat_id: index + 1,\n    type: beatType,\n    description: sceneFunction.why_it_matters || segment.summary || '',\n    source_scene_ids: uniqueStrings([segment.scene_id ?? sceneFunction.scene_id ?? '']),\n    emotion: Array.isArray(segment.emotion_tone) && segment.emotion_tone.length > 0\n      ? segment.emotion_tone[0]\n      : 'neutral',\n    tension,\n    duration_ratio: durationRatio,\n  };\n});\n\nconst normalizedBeatSheet = Array.isArray(parsed.beat_sheet) && parsed.beat_sheet.length > 0\n  ? parsed.beat_sheet.map((beat, index, array) => ({\n      beat_id: index + 1,\n      type: normalizeBeatType(\n        beat?.type,\n        fallbackBeatSheet[index]?.type ?? 'confrontation',\n      ),\n      description: typeof beat?.description === 'string' ? beat.description : '',\n      source_scene_ids: uniqueStrings(\n        Array.isArray(beat?.source_scene_ids) && beat.source_scene_ids.length > 0\n          ? beat.source_scene_ids\n          : (fallbackBeatSheet[index]?.source_scene_ids ?? []),\n      ),\n      emotion: typeof beat?.emotion === 'string' ? beat.emotion : 'neutral',\n      tension: Number(clamp(Number(beat?.tension ?? 0.5), 0, 1).toFixed(2)),\n      duration_ratio: Number(clamp(Number(beat?.duration_ratio ?? (1 / Math.max(array.length, 1))), 0.05, 0.5).toFixed(2)),\n    }))\n  : fallbackBeatSheet;\n\nconst emotionalArc = {\n  opening_emotion: parsed.emotional_arc?.opening_emotion\n    ?? normalizedBeatSheet[0]?.emotion\n    ?? 'neutral',\n  peak_emotion: parsed.emotional_arc?.peak_emotion\n    ?? normalizedBeatSheet.reduce((best, beat) => (beat.tension > best.tension ? beat : best), normalizedBeatSheet[0] ?? { emotion: 'neutral', tension: 0 }).emotion,\n  closing_emotion: parsed.emotional_arc?.closing_emotion\n    ?? normalizedBeatSheet[normalizedBeatSheet.length - 1]?.emotion\n    ?? 'neutral',\n  arc_shape: parsed.emotional_arc?.arc_shape ?? 'rising_with_twist',\n  intensity_curve: Array.isArray(parsed.emotional_arc?.intensity_curve) && parsed.emotional_arc.intensity_curve.length > 0\n    ? parsed.emotional_arc.intensity_curve.map((value) => Number(clamp(Number(value), 0, 1).toFixed(2)))\n    : normalizedBeatSheet.map((beat) => beat.tension),\n};\n\nreturn [{\n  json: {\n    ...item,\n    storyDevelopmentStatus: normalizedBeatSheet.length > 0 ? 'ready' : 'partial',\n    storyDevelopmentInputVersion: 'v1',\n    storyDevelopment: {\n      density_analysis: densityAnalysis,\n      creative_strategy: creativeStrategy,\n      beat_sheet: normalizedBeatSheet,\n      emotional_arc: emotionalArc,\n    },\n  },\n}];"
       },
       "id": "ff545b31-a530-441a-b0de-4aff4ae00985",
       "name": "Assemble Story Development",
@@ -408,6 +408,118 @@
       "position": [
         1060,
         1960
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const item = $input.first().json;\nconst storyNode = item.storyDevelopment ? item : ($node['Assemble Story Development']?.json ?? item);\n\nreturn [{\n  json: {\n    ...storyNode,\n    screenplayInput: {\n      normalized_input: storyNode.normalizedInput ?? {},\n      episode_context: storyNode.episodeContext ?? {},\n      planning_context: storyNode.planningContext ?? {},\n      story_development: storyNode.storyDevelopment ?? {},\n    },\n  },\n}];"
+      },
+      "id": "0df3e15e-1643-43c5-9cfc-5db0ba2d34d2",
+      "name": "Build Screenplay Payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        540,
+        2640
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ `You are the Screenplay Writer step of an AI short-drama generation pipeline.\nYour job is to convert story development output into a concrete scene list for production planning.\n\nImportant rules:\n- Work only from the provided normalized input, planning context, episode context, and story development.\n- Keep natural-language values in Korean.\n- Keep enum-like values in snake_case.\n- Preserve \\`source_beats\\` exactly as beat IDs from the input beat sheet.\n- Use \\`location_id\\` values only from the provided \\`planning_context.location_context[].id\\`.\n- Use \\`characters_present\\` and \\`actions[].character\\` values only from the provided \\`planning_context.character_context[].id\\`.\n- \\`scene_id\\` must use the format \\`sc_001\\`, \\`sc_002\\`, ... in sequence.\n- Every scene must contain \\`heading\\`, \\`description\\`, \\`actions\\`, \\`dialogue\\`, \\`mood\\`, and \\`duration_target_sec\\`.\n- Dialogue may be sparse in PoC mode, but each scene should still define an explicit \\`dialogue\\` array.\n- Keep the screenplay aligned with the beat sheet and emotional arc.\n- Return only the data requested by the output schema. No markdown. No extra commentary.\n\nWorkflow context:\n- workflow_name: ${$json.workflowName || 'short-drama-pipeline'}\n- beat_count: ${$json.screenplayInput?.story_development?.beat_sheet?.length || 0}\n- target_tone: ${$json.screenplayInput?.planning_context?.series_context?.tone || 'drama'}\n- arc_phase: ${$json.screenplayInput?.planning_context?.narrative_context?.arc_phase || 'unknown'}\n\nScreenplay input JSON:\n${JSON.stringify($json.screenplayInput, null, 2)}` }}",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "type": "SystemMessagePromptTemplate",
+              "message": "You are a Korean drama screenplay writer inside an n8n pipeline. Expand the beat sheet into a stable scene list with production-usable structure."
+            }
+          ]
+        }
+      },
+      "id": "bacdccc1-b6cf-46f0-957b-f1c8cf86baa6",
+      "name": "Screenplay Writer Chain",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        800,
+        2640
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "id",
+          "value": "gpt-5.3-chat-latest"
+        },
+        "responsesApiEnabled": false,
+        "options": {
+          "temperature": 1,
+          "timeout": 120000
+        }
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "iJ0rT6FtNysjeetC",
+          "name": "[kikick] 테스트 키 #1"
+        }
+      },
+      "id": "3d1bcab3-a472-49be-beea-1d5bc90be7d1",
+      "name": "Screenplay Writer Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        800,
+        2900
+      ]
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"additionalProperties\": false,\n  \"required\": [\n    \"scenes\",\n    \"total_scenes\",\n    \"total_duration_target_sec\"\n  ],\n  \"properties\": {\n    \"scenes\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"object\",\n        \"additionalProperties\": false,\n        \"required\": [\n          \"scene_id\",\n          \"source_beats\",\n          \"heading\",\n          \"location_id\",\n          \"time_of_day\",\n          \"characters_present\",\n          \"description\",\n          \"actions\",\n          \"dialogue\",\n          \"mood\",\n          \"duration_target_sec\"\n        ],\n        \"properties\": {\n          \"scene_id\": {\n            \"type\": \"string\"\n          },\n          \"source_beats\": {\n            \"type\": \"array\",\n            \"items\": {\n              \"type\": \"number\"\n            }\n          },\n          \"heading\": {\n            \"type\": \"string\"\n          },\n          \"location_id\": {\n            \"type\": \"string\"\n          },\n          \"time_of_day\": {\n            \"type\": \"string\"\n          },\n          \"characters_present\": {\n            \"type\": \"array\",\n            \"items\": {\n              \"type\": \"string\"\n            }\n          },\n          \"description\": {\n            \"type\": \"string\"\n          },\n          \"actions\": {\n            \"type\": \"array\",\n            \"items\": {\n              \"type\": \"object\",\n              \"additionalProperties\": false,\n              \"required\": [\n                \"character\",\n                \"action\",\n                \"emotion\",\n                \"detail\"\n              ],\n              \"properties\": {\n                \"character\": {\n                  \"type\": \"string\"\n                },\n                \"action\": {\n                  \"type\": \"string\"\n                },\n                \"emotion\": {\n                  \"type\": \"string\"\n                },\n                \"detail\": {\n                  \"type\": \"string\"\n                }\n              }\n            }\n          },\n          \"dialogue\": {\n            \"type\": \"array\",\n            \"items\": {\n              \"type\": \"object\",\n              \"additionalProperties\": false,\n              \"required\": [\n                \"speaker\",\n                \"text\",\n                \"tone\",\n                \"subtext\"\n              ],\n              \"properties\": {\n                \"speaker\": {\n                  \"type\": \"string\"\n                },\n                \"text\": {\n                  \"type\": \"string\"\n                },\n                \"tone\": {\n                  \"type\": \"string\"\n                },\n                \"subtext\": {\n                  \"type\": \"string\"\n                }\n              }\n            }\n          },\n          \"mood\": {\n            \"type\": \"object\",\n            \"additionalProperties\": false,\n            \"required\": [\n              \"visual\",\n              \"audio\"\n            ],\n            \"properties\": {\n              \"visual\": {\n                \"type\": \"string\"\n              },\n              \"audio\": {\n                \"type\": \"string\"\n              }\n            }\n          },\n          \"duration_target_sec\": {\n            \"type\": \"number\"\n          }\n        }\n      }\n    },\n    \"total_scenes\": {\n      \"type\": \"number\"\n    },\n    \"total_duration_target_sec\": {\n      \"type\": \"number\"\n    }\n  }\n}",
+        "autoFix": false
+      },
+      "id": "eb85e3bb-84be-4be9-a82e-cbdc7dd064e9",
+      "name": "Screenplay Writer Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1060,
+        2900
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const item = $input.first().json;\nconst payloadNode = $node['Build Screenplay Payload']?.json ?? {};\nconst storyNode = $node['Assemble Story Development']?.json ?? {};\nconst parsed = item.output && typeof item.output === 'object' ? item.output : item;\nconst normalizedInput =\n  item.normalizedInput\n  ?? payloadNode.normalized_input\n  ?? payloadNode.screenplayInput?.normalized_input\n  ?? storyNode.normalizedInput\n  ?? {};\nconst episodeContext =\n  item.episodeContext\n  ?? payloadNode.episode_context\n  ?? payloadNode.screenplayInput?.episode_context\n  ?? storyNode.episodeContext\n  ?? {};\nconst planningContext =\n  item.planningContext\n  ?? payloadNode.planning_context\n  ?? payloadNode.screenplayInput?.planning_context\n  ?? storyNode.planningContext\n  ?? {};\nconst storyDevelopment =\n  item.storyDevelopment\n  ?? payloadNode.story_development\n  ?? payloadNode.screenplayInput?.story_development\n  ?? storyNode.storyDevelopment\n  ?? {};\n\nconst segments = Array.isArray(normalizedInput.story_text_structured?.segments)\n  ? normalizedInput.story_text_structured.segments\n  : [];\nconst beatSheet = Array.isArray(storyDevelopment.beat_sheet)\n  ? storyDevelopment.beat_sheet\n  : [];\nconst characters = Array.isArray(planningContext.character_context)\n  ? planningContext.character_context\n  : [];\nconst locations = Array.isArray(planningContext.location_context)\n  ? planningContext.location_context\n  : [];\n\nconst clamp = (value, min, max) => Math.min(max, Math.max(min, value));\nconst uniqueStrings = (values) => [...new Set(\n  values\n    .filter((value) => typeof value === 'string')\n    .map((value) => value.trim())\n    .filter(Boolean),\n)];\nconst slugify = (value) => String(value ?? '')\n  .trim()\n  .toLowerCase()\n  .replace(/[^a-z0-9]+/g, '_')\n  .replace(/^_+|_+$/g, '');\nconst toSceneId = (index) => `sc_${String(index + 1).padStart(3, '0')}`;\n\nconst segmentById = new Map(\n  segments\n    .filter((segment) => typeof segment?.scene_id === 'string' && segment.scene_id)\n    .map((segment) => [segment.scene_id, segment]),\n);\nconst characterIdByName = new Map(\n  characters\n    .filter((character) => typeof character?.name === 'string' && typeof character?.id === 'string')\n    .map((character) => [character.name, character.id]),\n);\n\nconst relatedSceneIdsByLocationId = new Map(\n  locations.map((location) => [\n    location.id,\n    Array.isArray(location.related_scene_ids) ? location.related_scene_ids : [],\n  ]),\n);\n\nconst inferTimeOfDay = (value) => {\n  const text = String(value ?? '');\n\n  if (text.includes('아침')) {\n    return 'morning';\n  }\n  if (text.includes('밤')) {\n    return 'night';\n  }\n  if (text.includes('저녁')) {\n    return 'evening';\n  }\n  if (text.includes('낮')) {\n    return 'day';\n  }\n\n  return 'unspecified';\n};\n\nconst buildHeading = (segment, location) => {\n  const locationName = segment?.scene_heading || location?.name || '미상 공간';\n  const timeOfDay = inferTimeOfDay(segment?.scene_heading || '');\n  const timeLabelMap = {\n    morning: '아침',\n    day: '낮',\n    evening: '저녁',\n    night: '밤',\n    unspecified: '불명',\n  };\n\n  return `INT. ${locationName} - ${timeLabelMap[timeOfDay] ?? '불명'}`;\n};\n\nconst resolveLocation = (sourceSceneIds, segment) => {\n  const preferredLocationName = Array.isArray(segment?.entities?.locations) && segment.entities.locations.length > 0\n    ? segment.entities.locations[0]\n    : '';\n  const exactByName = locations.find((location) => location.name === preferredLocationName);\n\n  if (exactByName) {\n    return exactByName;\n  }\n\n  const byScene = locations.find((location) => {\n    const related = relatedSceneIdsByLocationId.get(location.id) ?? [];\n    return sourceSceneIds.some((sceneId) => related.includes(sceneId));\n  });\n\n  if (byScene) {\n    return byScene;\n  }\n\n  return locations[0] ?? { id: 'loc_01', name: segment?.scene_heading || '미상 공간' };\n};\n\nconst resolveCharacters = (segment) => {\n  const names = Array.isArray(segment?.entities?.characters) ? segment.entities.characters : [];\n  const ids = uniqueStrings(names.map((name) => characterIdByName.get(name)).filter(Boolean));\n  return ids.length > 0 ? ids : characters.slice(0, 1).map((character) => character.id);\n};\n\nconst buildActions = (segment, characterIds, emotion) => {\n  const sourceActions = Array.isArray(segment?.key_actions) ? segment.key_actions : [];\n  const fallbackActions = sourceActions.length > 0 ? sourceActions : ['상황을 관찰한다'];\n\n  return fallbackActions.slice(0, Math.max(1, Math.min(3, characterIds.length || 1))).map((detail, index) => ({\n    character: characterIds[index] ?? characterIds[0] ?? (characters[0]?.id || 'char_01'),\n    action: slugify(detail) || 'observe',\n    emotion: emotion || 'neutral',\n    detail,\n  }));\n};\n\nconst buildDialogue = (segment, characterIds, emotion) => {\n  const summary = String(segment?.summary ?? '').trim();\n  if (!summary || characterIds.length === 0) {\n    return [];\n  }\n\n  return [{\n    speaker: characterIds[0],\n    text: `${summary.slice(0, 70)}${summary.length > 70 ? '...' : ''}`,\n    tone: emotion || 'neutral',\n    subtext: '현재 장면의 핵심 감정을 드러내는 요약 대사',\n  }];\n};\n\nconst fallbackScenes = beatSheet.map((beat, index, array) => {\n  const sourceSceneIds = Array.isArray(beat.source_scene_ids) && beat.source_scene_ids.length > 0\n    ? beat.source_scene_ids\n    : [segments[index]?.scene_id].filter(Boolean);\n  const segment = segmentById.get(sourceSceneIds[0]) ?? segments[index] ?? {};\n  const location = resolveLocation(sourceSceneIds, segment);\n  const charactersPresent = resolveCharacters(segment);\n  const emotion = beat.emotion || (Array.isArray(segment.emotion_tone) ? segment.emotion_tone[0] : '') || 'neutral';\n  const durationTargetSec = Math.round(clamp(Number(beat.duration_ratio ?? (1 / Math.max(array.length, 1))) * 90, 6, 30));\n\n  return {\n    scene_id: toSceneId(index),\n    source_beats: [beat.beat_id ?? (index + 1)],\n    heading: buildHeading(segment, location),\n    location_id: location.id,\n    time_of_day: inferTimeOfDay(segment.scene_heading || ''),\n    characters_present: charactersPresent,\n    description: beat.description || segment.summary || episodeContext.episode_summary || '',\n    actions: buildActions(segment, charactersPresent, emotion),\n    dialogue: buildDialogue(segment, charactersPresent, emotion),\n    mood: {\n      visual: slugify(normalizedInput.production_hints?.dominant_mood || emotion) || 'dramatic',\n      audio: beat.tension >= 0.7 ? 'tense_silence' : 'ambient_room_tone',\n    },\n    duration_target_sec: durationTargetSec,\n  };\n});\n\nconst normalizedScenes = Array.isArray(parsed.scenes) && parsed.scenes.length > 0\n  ? parsed.scenes.map((scene, index) => {\n      const fallbackScene = fallbackScenes[index] ?? fallbackScenes[0] ?? {\n        scene_id: toSceneId(index),\n        source_beats: [index + 1],\n        heading: 'INT. 미상 공간 - 불명',\n        location_id: locations[0]?.id || 'loc_01',\n        time_of_day: 'unspecified',\n        characters_present: characters.slice(0, 1).map((character) => character.id),\n        description: '',\n        actions: [],\n        dialogue: [],\n        mood: { visual: 'dramatic', audio: 'ambient_room_tone' },\n        duration_target_sec: 12,\n      };\n\n      const normalizedCharacters = uniqueStrings(\n        Array.isArray(scene?.characters_present) ? scene.characters_present : fallbackScene.characters_present,\n      );\n\n      return {\n        scene_id: toSceneId(index),\n        source_beats: Array.isArray(scene?.source_beats) && scene.source_beats.length > 0\n          ? scene.source_beats.map((value) => Number(value)).filter((value) => Number.isFinite(value))\n          : fallbackScene.source_beats,\n        heading: typeof scene?.heading === 'string' && scene.heading.trim() ? scene.heading : fallbackScene.heading,\n        location_id: typeof scene?.location_id === 'string' && scene.location_id.trim()\n          ? scene.location_id\n          : fallbackScene.location_id,\n        time_of_day: typeof scene?.time_of_day === 'string' && scene.time_of_day.trim()\n          ? scene.time_of_day\n          : fallbackScene.time_of_day,\n        characters_present: normalizedCharacters.length > 0 ? normalizedCharacters : fallbackScene.characters_present,\n        description: typeof scene?.description === 'string' ? scene.description : fallbackScene.description,\n        actions: Array.isArray(scene?.actions) && scene.actions.length > 0\n          ? scene.actions.map((action, actionIndex) => ({\n              character: typeof action?.character === 'string' && action.character.trim()\n                ? action.character\n                : (normalizedCharacters[actionIndex] ?? normalizedCharacters[0] ?? fallbackScene.characters_present[0] ?? 'char_01'),\n              action: slugify(action?.action) || 'observe',\n              emotion: typeof action?.emotion === 'string' && action.emotion.trim()\n                ? action.emotion\n                : 'neutral',\n              detail: typeof action?.detail === 'string' ? action.detail : '',\n            }))\n          : fallbackScene.actions,\n        dialogue: Array.isArray(scene?.dialogue)\n          ? scene.dialogue.map((line) => ({\n              speaker: typeof line?.speaker === 'string' && line.speaker.trim()\n                ? line.speaker\n                : (normalizedCharacters[0] ?? fallbackScene.characters_present[0] ?? 'char_01'),\n              text: typeof line?.text === 'string' ? line.text : '',\n              tone: typeof line?.tone === 'string' && line.tone.trim() ? line.tone : 'neutral',\n              subtext: typeof line?.subtext === 'string' ? line.subtext : '',\n            }))\n          : fallbackScene.dialogue,\n        mood: {\n          visual: typeof scene?.mood?.visual === 'string' && scene.mood.visual.trim()\n            ? scene.mood.visual\n            : fallbackScene.mood.visual,\n          audio: typeof scene?.mood?.audio === 'string' && scene.mood.audio.trim()\n            ? scene.mood.audio\n            : fallbackScene.mood.audio,\n        },\n        duration_target_sec: Math.round(clamp(Number(scene?.duration_target_sec ?? fallbackScene.duration_target_sec), 5, 40)),\n      };\n    })\n  : fallbackScenes;\n\nconst totalDurationTargetSec = normalizedScenes.reduce(\n  (sum, scene) => sum + (Number(scene.duration_target_sec) || 0),\n  0,\n);\n\nreturn [{\n  json: {\n    ...item,\n    screenplayStatus: normalizedScenes.length > 0 ? 'ready' : 'partial',\n    screenplayInputVersion: 'v1',\n    screenplay: {\n      scenes: normalizedScenes,\n      total_scenes: normalizedScenes.length,\n      total_duration_target_sec: totalDurationTargetSec,\n    },\n  },\n}];"
+      },
+      "id": "bee748e7-f6c4-418f-a166-ab43e0996b89",
+      "name": "Assemble Screenplay",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1060,
+        2640
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Screenplay Writer\nstoryDevelopment를 구체적인 scene list로 확장해 후속 연출/편집 단계가 바로 읽을 수 있는 screenplay를 생성합니다.\n\n범위:\n- hybrid_llm_plus_fallback\n- canonical_output: screenplay",
+        "height": 560,
+        "width": 980,
+        "color": 7
+      },
+      "id": "f696059f-4c56-49a9-823c-b9f060a9c038",
+      "name": "Stage Note - Screenplay Writer",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        440,
+        2500
       ]
     },
     {
@@ -684,6 +796,61 @@
         [
           {
             "node": "Assemble Story Development",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assemble Story Development": {
+      "main": [
+        [
+          {
+            "node": "Build Screenplay Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Screenplay Payload": {
+      "main": [
+        [
+          {
+            "node": "Screenplay Writer Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Screenplay Writer Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Screenplay Writer Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Screenplay Writer Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Screenplay Writer Chain",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Screenplay Writer Chain": {
+      "main": [
+        [
+          {
+            "node": "Assemble Screenplay",
             "type": "main",
             "index": 0
           }

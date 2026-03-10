@@ -1,0 +1,139 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "scenes",
+    "total_scenes",
+    "total_duration_target_sec"
+  ],
+  "properties": {
+    "scenes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "scene_id",
+          "source_beats",
+          "heading",
+          "location_id",
+          "time_of_day",
+          "characters_present",
+          "description",
+          "actions",
+          "dialogue",
+          "mood",
+          "duration_target_sec"
+        ],
+        "properties": {
+          "scene_id": {
+            "type": "string"
+          },
+          "source_beats": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "heading": {
+            "type": "string"
+          },
+          "location_id": {
+            "type": "string"
+          },
+          "time_of_day": {
+            "type": "string"
+          },
+          "characters_present": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "description": {
+            "type": "string"
+          },
+          "actions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "character",
+                "action",
+                "emotion",
+                "detail"
+              ],
+              "properties": {
+                "character": {
+                  "type": "string"
+                },
+                "action": {
+                  "type": "string"
+                },
+                "emotion": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "dialogue": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "speaker",
+                "text",
+                "tone",
+                "subtext"
+              ],
+              "properties": {
+                "speaker": {
+                  "type": "string"
+                },
+                "text": {
+                  "type": "string"
+                },
+                "tone": {
+                  "type": "string"
+                },
+                "subtext": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "mood": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "visual",
+              "audio"
+            ],
+            "properties": {
+              "visual": {
+                "type": "string"
+              },
+              "audio": {
+                "type": "string"
+              }
+            }
+          },
+          "duration_target_sec": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "total_scenes": {
+      "type": "number"
+    },
+    "total_duration_target_sec": {
+      "type": "number"
+    }
+  }
+}

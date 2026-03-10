@@ -5,8 +5,25 @@ Important rules:
 - Work only from the provided planning context, episode context, and normalized input.
 - Keep natural-language values in Korean.
 - Keep enum-like values in snake_case.
+- Use `creative_strategy.primary` and `creative_strategy.secondary` only from this set:
+  - `emotional_drama`
+  - `relationship_drama`
+  - `suspense_mystery`
+  - `romantic_mystery`
+  - `betrayal_reveal`
+- Use `beat_sheet[].type` only from this set:
+  - `setup`
+  - `approach`
+  - `catalyst`
+  - `confrontation`
+  - `midpoint`
+  - `fallout`
+  - `mystery_setup`
+  - `climax`
+  - `resolution`
 - Produce a beat sheet with 6 to 8 beats unless the planning context strongly requires fewer.
 - Keep `beat_id` sequential starting from 1.
+- Every beat must include `source_scene_ids`, and each value must exactly match scene IDs from the input.
 - `duration_ratio` values should approximately sum to 1.0 across the beat sheet.
 - `tension` must be a number between 0 and 1.
 - Emotional arc must align with the generated beat sheet.

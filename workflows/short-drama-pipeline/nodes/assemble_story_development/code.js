@@ -26,6 +26,57 @@ const sceneFunctions = Array.isArray(episodeContext.scene_functions)
   : [];
 
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+const uniqueStrings = (values) => [...new Set(
+  values
+    .filter((value) => typeof value === 'string')
+    .map((value) => value.trim())
+    .filter(Boolean),
+)];
+
+const STRATEGY_ALIASES = {
+  emotional_drama: 'emotional_drama',
+  emotional_collapse_to_mystery: 'emotional_drama',
+  relationship_drama: 'relationship_drama',
+  romance_drama: 'relationship_drama',
+  suspense: 'suspense_mystery',
+  suspense_mystery: 'suspense_mystery',
+  mystery_hook: 'suspense_mystery',
+  romantic_mystery: 'romantic_mystery',
+  betrayal_reveal: 'betrayal_reveal',
+  betrayal_reveal_with_mystery_hook: 'betrayal_reveal',
+};
+
+const BEAT_TYPE_ALIASES = {
+  setup: 'setup',
+  approach: 'approach',
+  catalyst: 'catalyst',
+  inciting_incident: 'catalyst',
+  confrontation: 'confrontation',
+  confrontation_observation: 'confrontation',
+  midpoint: 'midpoint',
+  emotional_fallout: 'fallout',
+  fallout: 'fallout',
+  mystery_setup: 'mystery_setup',
+  climax: 'climax',
+  cliffhanger_reveal: 'climax',
+  resolution: 'resolution',
+};
+
+const normalizeStrategy = (value, fallback) => {
+  if (typeof value !== 'string') {
+    return fallback;
+  }
+
+  return STRATEGY_ALIASES[value.trim()] ?? fallback;
+};
+
+const normalizeBeatType = (value, fallback) => {
+  if (typeof value !== 'string') {
+    return fallback;
+  }
+
+  return BEAT_TYPE_ALIASES[value.trim()] ?? fallback;
+};
 
 const fallbackDensityLevel = (() => {
   const sceneCount = normalizedInput.input_metadata?.scene_count ?? segments.length;
@@ -45,8 +96,8 @@ const densityAnalysis = {
 };
 
 const creativeStrategy = {
-  primary: parsed.creative_strategy?.primary ?? 'emotional_drama',
-  secondary: parsed.creative_strategy?.secondary ?? 'suspense',
+  primary: normalizeStrategy(parsed.creative_strategy?.primary, 'emotional_drama'),
+  secondary: normalizeStrategy(parsed.creative_strategy?.secondary, 'suspense_mystery'),
   style_notes: parsed.creative_strategy?.style_notes
     ?? `${episodeContext.central_conflict || episodeContext.dramatic_question || '관계 변화'}를 중심으로 감정선과 긴장을 병행`,
 };
@@ -62,6 +113,7 @@ const fallbackBeatSheet = sceneFunctions.map((sceneFunction, index) => {
     beat_id: index + 1,
     type: beatType,
     description: sceneFunction.why_it_matters || segment.summary || '',
+    source_scene_ids: uniqueStrings([segment.scene_id ?? sceneFunction.scene_id ?? '']),
     emotion: Array.isArray(segment.emotion_tone) && segment.emotion_tone.length > 0
       ? segment.emotion_tone[0]
       : 'neutral',
@@ -73,8 +125,16 @@ const fallbackBeatSheet = sceneFunctions.map((sceneFunction, index) => {
 const normalizedBeatSheet = Array.isArray(parsed.beat_sheet) && parsed.beat_sheet.length > 0
   ? parsed.beat_sheet.map((beat, index, array) => ({
       beat_id: index + 1,
-      type: typeof beat?.type === 'string' ? beat.type : 'progression',
+      type: normalizeBeatType(
+        beat?.type,
+        fallbackBeatSheet[index]?.type ?? 'confrontation',
+      ),
       description: typeof beat?.description === 'string' ? beat.description : '',
+      source_scene_ids: uniqueStrings(
+        Array.isArray(beat?.source_scene_ids) && beat.source_scene_ids.length > 0
+          ? beat.source_scene_ids
+          : (fallbackBeatSheet[index]?.source_scene_ids ?? []),
+      ),
       emotion: typeof beat?.emotion === 'string' ? beat.emotion : 'neutral',
       tension: Number(clamp(Number(beat?.tension ?? 0.5), 0, 1).toFixed(2)),
       duration_ratio: Number(clamp(Number(beat?.duration_ratio ?? (1 / Math.max(array.length, 1))), 0.05, 0.5).toFixed(2)),
